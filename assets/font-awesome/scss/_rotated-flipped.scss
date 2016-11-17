@@ -1,0 +1,17 @@
+" rx="'.($h*$border_radius).'px" ry="'.($h*$border_radius).'px" width="'.$barw.'" height="'.$h.'" fill="'.$barcol.'" stroke="none" />';
+	}
+
+	// VALUE Marker
+	if ($value) {
+	  if ($min != $low && $value < $low) { $col = 'orange'; }
+	  else if ($max != $high && $value > $high) { $col = 'orange'; }
+	  else { $col = 'orange'; }
+	  $cx = (($value-$min) / ($max-$min) ) * $w;
+	  $cy = $h/2;
+	  $rx = $h/2.2;
+	  $ry = $h/2.2;
+	  $svg .= '<ellipse fill="'.$col.'" stroke="#000000" stroke-width="0.5px" cx="'.$cx.'" cy="'.$cy.'" rx="'.$rx.'" ry="'.$ry.'"/>';
+	}
+
+	// BoRDER
+	$svg .= '<rect x="0" y="0" width="'.$w.'" height="'.$h.'" fill="none" stroke="#888888" s

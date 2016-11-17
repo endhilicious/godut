@@ -1,0 +1,112 @@
+subsetglyphs);
+		}
+
+		$numGlyphs = $numberOfHMetrics = count($subsetglyphs );
+
+		///////////////////////////////////
+		// name - table copied from the original
+		///////////////////////////////////
+		// MS spec says that "Platform and encoding ID's in the name table should be consistent with those in the cmap table. 
+		// If they are not, the font will not load in Windows"
+		// Doesn't seem to be a problem?
+		///////////////////////////////////
+		$this->add('name', $this->get_table('name'));
+
+		///////////////////////////////////
+		//tables copied from the original
+		///////////////////////////////////
+		$tags = array ('cvt ', 'fpgm', 'prep', 'gasp');
+		foreach($tags AS $tag) {
+			if (isset($this->tables[$tag])) { $this->add($tag, $this->get_table($tag)); }
+		}
+
+		///////////////////////////////////
+		// post - PostScript
+		///////////////////////////////////
+		if (isset($this->tables['post'])) {
+			$opost = $this->get_table('post');
+			$post = "\x00\x03\x00\x00" . substr($opost,4,12) . "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00";
+			$this->add('post', $post);
+		}
+
+		///////////////////////////////////
+		// Sort CID2GID map into segments of contiguous codes
+		///////////////////////////////////
+		ksort($codeToGlyph);
+		unset($codeToGlyph[0]);
+		//unset($codeToGlyph[65535]);
+		$rangeid = 0;
+		$range = array();
+		$prevcid = -2;
+		$prevglidx = -1;
+		// for each character
+		foreach ($codeToGlyph as $cid => $glidx) {
+			if ($cid == ($prevcid + 1) && $glidx == ($prevglidx + 1)) {
+				$range[$rangeid][] = $glidx;
+			} else {
+				// new range
+				$rangeid = $cid;
+				$range[$rangeid] = array();
+				$range[$rangeid][] = $glidx;
+			}
+			$prevcid = $cid;
+			$prevglidx = $glidx;
+		}
+
+
+
+		///////////////////////////////////
+		// CMap table
+		///////////////////////////////////
+		// cmap - Character to glyph mapping 
+		$segCount = count($range) + 1;	// + 1 Last segment has missing character 0xFFFF
+		$searchRange = 1;
+		$entrySelector = 0;
+		while ($searchRange * 2 <= $segCount ) {
+			$searchRange = $searchRange * 2;
+			$entrySelector = $entrySelector + 1;
+		}
+		$searchRange = $searchRange * 2;
+		$rangeShift = $segCount * 2 - $searchRange;
+		$length = 16 + (8*$segCount ) + ($numGlyphs+1);
+		$cmap = array(0, 3,		// Index : version, number of encoding subtables
+			0, 0,				// Encoding Subtable : platform (UNI=0), encoding 0
+			0, 28,			// Encoding Subtable : offset (hi,lo)
+			0, 3,				// Encoding Subtable : platform (UNI=0), encoding 3
+			0, 28,			// Encoding Subtable : offset (hi,lo)
+			3, 1,				// Encoding Subtable : platform (MS=3), encoding 1
+			0, 28,			// Encoding Subtable : offset (hi,lo)
+			4, $length, 0, 		// Format 4 Mapping subtable: format, length, language
+			$segCount*2,
+			$searchRange,
+			$entrySelector,
+			$rangeShift);
+
+		// endCode(s)
+		foreach($range AS $start=>$subrange) {
+			$endCode = $start + (count($subrange)-1);
+			$cmap[] = $endCode;	// endCode(s)
+		}
+		$cmap[] =	0xFFFF;	// endCode of last Segment
+		$cmap[] =	0;	// reservedPad
+
+		// startCode(s)
+		foreach($range AS $start=>$subrange) {
+			$cmap[] = $start;	// startCode(s)
+		}
+		$cmap[] =	0xFFFF;	// startCode of last Segment
+		// idDelta(s) 
+		foreach($range AS $start=>$subrange) {
+			$idDelta = -($start-$subrange[0]);
+			$n += count($subrange);
+			$cmap[] = $idDelta;	// idDelta(s)
+		}
+		$cmap[] =	1;	// idDelta of last Segment
+		// idRangeOffset(s) 
+		foreach($range AS $subrange) {
+			$cmap[] = 0;	// idRangeOffset[segCount]  	Offset in bytes to glyph indexArray, or 0
+
+		}
+		$cmap[] =	0;	// idRangeOffset of last Segment
+		foreach($range AS $subrange) {
+			foreach($subrange AS $glidx) 

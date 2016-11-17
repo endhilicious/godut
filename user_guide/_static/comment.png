@@ -1,0 +1,77 @@
+nts and compile the points in a list.
+
+The Attachment List table (AttachList) may be used to cache attachment point coordinates along with glyph bitmaps.
+
+The table consists of an offset to a Coverage table (Coverage) listing all glyphs that define attachment points in the GPOS table, a count of the glyphs with attachment points (GlyphCount), and an array of offsets to AttachPoint tables (AttachPoint). The array lists the AttachPoint tables, one for each glyph in the Coverage table, in the same order as the Coverage Index.
+AttachList table
+Type 	Name 	Description
+Offset 	Coverage 	Offset to Coverage table - from beginning of AttachList table
+uint16 	GlyphCount 	Number of glyphs with attachment points
+Offset 	AttachPoint[GlyphCount] 	Array of offsets to AttachPoint tables-from beginning of AttachList table-in Coverage Index order
+
+An AttachPoint table consists of a count of the attachment points on a single glyph (PointCount) and an array of contour indices of those points (PointIndex), listed in increasing numerical order.
+
+AttachPoint table
+Type 	Name 	Description
+uint16 	PointCount 	Number of attachment points on this glyph
+uint16 	PointIndex[PointCount] 	Array of contour point indices -in increasing numerical order
+
+See Example 3 - http://www.microsoft.com/typography/otspec/gdef.htm
+*/
+
+
+			// Ligature Caret List 
+			// The Ligature Caret List table (LigCaretList) defines caret positions for all the ligatures in a font. 
+			// Not required for mDPF
+
+
+			// MarkAttachmentType
+			if ($MarkAttachClassDef_offset) {
+				$this->seek($gdef_offset+$MarkAttachClassDef_offset);
+				$MarkAttachmentTypes = $this->_getClassDefinitionTable();
+				foreach($MarkAttachmentTypes AS $class=>$glyphs) {
+
+					if (is_array($Marks) && count($Marks)) {
+						$mat = array_diff($Marks, $MarkAttachmentTypes[$class]);
+						sort($mat, SORT_STRING);
+					}
+					else { $mat = array(); }
+
+					$this->MarkAttachmentType[$class] = ' '.implode('| ',$mat);
+				}
+			}
+			else  { $this->MarkAttachmentType = array(); }
+
+
+			// MarkGlyphSets only in Version 0x00010002 of GDEF
+			if ($ver_min == 2 && $MarkGlyphSetsDef_offset) {
+				$this->seek($gdef_offset+$MarkGlyphSetsDef_offset);
+				$MarkSetTableFormat = $this->read_ushort();
+				$MarkSetCount = $this->read_ushort();
+				$MarkSetOffset = array();
+				for ($i=0;$i<$MarkSetCount;$i++) {
+					$MarkSetOffset[] = $this->read_ulong();
+				}
+				for ($i=0;$i<$MarkSetCount;$i++) {
+					$this->seek($MarkSetOffset[$i]);
+					$glyphs = $this->_getCoverage();
+					$this->MarkGlyphSets[$i] = ' '.implode('| ',$glyphs);
+				}
+			}
+			else { $this->MarkGlyphSets = array(); }
+		}
+		else { die('Warning - You cannot set this font ('.$this->filename.') to use OTL, as it does not include OTL tables (or at least, not a GDEF table).'); }
+
+			//=====================================================================================
+			//=====================================================================================
+			//=====================================================================================
+			$GSUB_offset = 0;
+			$GPOS_offset = 0;
+			$GSUB_length = 0;
+			$s = '';
+			if (isset($this->tables["GSUB"])) {
+				$GSUB_offset = $this->seek_table("GSUB");
+				$GSUB_length = $this->tables["GSUB"]['length'];
+				$s .= fread($this->fh,$this->tables["GSUB"]['length']);
+			}
+			if (isset($this->tables["GPOS"])

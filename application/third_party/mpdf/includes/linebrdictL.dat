@@ -1,0 +1,3057 @@
+BR'], $celladj['border_details']['R']['w'], $celladj['border_details']['mbw']['TR']);
+				$cbord['border_details']['mbw']['LB'] = max($cbord['border_details']['mbw']['LB'], $celladj['border_details']['mbw']['LT']);
+				$cbord['border_details']['mbw']['RB'] = max($cbord['border_details']['mbw']['RB'], $celladj['border_details']['mbw']['RT']);
+				unset($celladj);
+			  }
+			  if (($j+$ccolsp) < $numcols && isset($cells[$i][$j+$ccolsp])) {	// Has Right adjoining cell
+				if ($this->packTableData) {
+					$adjc = $cells[$i][$j+$ccolsp];
+					$celladj = $this->_unpackCellBorder($adjc['borderbin']);
+				}
+				else { $celladj =& $cells[$i][$j+$ccolsp]; }
+				$cbord['border_details']['mbw']['RT'] = max($cbord['border_details']['mbw']['RT'], $celladj['border_details']['T']['w'], $celladj['border_details']['mbw']['LT']);
+				$cbord['border_details']['mbw']['RB'] = max($cbord['border_details']['mbw']['RB'], $celladj['border_details']['B']['w'], $celladj['border_details']['mbw']['LB']);
+				$cbord['border_details']['mbw']['TR'] = max($cbord['border_details']['mbw']['TR'], $celladj['border_details']['mbw']['TL']);
+				$cbord['border_details']['mbw']['BR'] = max($cbord['border_details']['mbw']['BR'], $celladj['border_details']['mbw']['BL']);
+				unset($celladj);
+			  }
+
+			  if ($i > 0 && isset($cells[$i-1][$j]) && (($this->packTableData && $cells[$i-1][$j]['borderbin']) || $cells[$i-1][$j]['border'])) {	// Has Top adjoining cell
+				if ($this->packTableData) {
+					$adjc = $cells[$i-1][$j];
+					$celladj = $this->_unpackCellBorder($adjc['borderbin']);
+				}
+				else { $celladj =& $cells[$i-1][$j]; }
+				$cbord['border_details']['mbw']['TL'] = max($cbord['border_details']['mbw']['TL'], $celladj['border_details']['L']['w'], $celladj['border_details']['mbw']['BL']);
+				$cbord['border_details']['mbw']['TR'] = max($cbord['border_details']['mbw']['TR'], $celladj['border_details']['R']['w'], $celladj['border_details']['mbw']['BR']);
+				$cbord['border_details']['mbw']['LT'] = max($cbord['border_details']['mbw']['LT'], $celladj['border_details']['mbw']['LB']);
+				$cbord['border_details']['mbw']['RT'] = max($cbord['border_details']['mbw']['RT'], $celladj['border_details']['mbw']['RB']);
+
+				if ($celladj['border_details']['mbw']['BL']) {
+					$celladj['border_details']['mbw']['BL'] = max($cbord['border_details']['mbw']['TL'], $celladj['border_details']['mbw']['BL']);
+				}
+				if ($celladj['border_details']['mbw']['BR'] ) {
+					$celladj['border_details']['mbw']['BR'] = max($celladj['border_details']['mbw']['BR'], $cbord['border_details']['mbw']['TR']);
+				}
+				if ($this->packTableData) { $cells[$i-1][$j]['borderbin'] = $this->_packCellBorder($celladj); }
+				unset($celladj);
+			  }
+			  if ($j > 0 && isset($cells[$i][$j-1]) && (($this->packTableData && $cells[$i][$j-1]['borderbin']) || $cells[$i][$j-1]['border'])) {	// Has Left adjoining cell
+				if ($this->packTableData) {
+					$adjc = $cells[$i][$j-1];
+					$celladj = $this->_unpackCellBorder($adjc['borderbin']);
+				}
+				else { $celladj =& $cells[$i][$j-1]; }
+				$cbord['border_details']['mbw']['LT'] = max($cbord['border_details']['mbw']['LT'], $celladj['border_details']['T']['w'], $celladj['border_details']['mbw']['RT']);
+				$cbord['border_details']['mbw']['LB'] = max($cbord['border_details']['mbw']['LB'], $celladj['border_details']['B']['w'], $celladj['border_details']['mbw']['RB']);
+				$cbord['border_details']['mbw']['BL'] = max($cbord['border_details']['mbw']['BL'], $celladj['border_details']['mbw']['BR']);
+				$cbord['border_details']['mbw']['TL'] = max($cbord['border_details']['mbw']['TL'], $celladj['border_details']['mbw']['TR']);
+
+				if ($celladj['border_details']['mbw']['RT']) {
+					$celladj['border_details']['mbw']['RT'] = max($celladj['border_details']['mbw']['RT'], $cbord['border_details']['mbw']['LT']);
+				}
+				if ($celladj['border_details']['mbw']['RB']) {
+					$celladj['border_details']['mbw']['RB'] = max($celladj['border_details']['mbw']['RB'], $cbord['border_details']['mbw']['LB']);
+				}
+				if ($this->packTableData) { $cells[$i][$j-1]['borderbin'] = $this->_packCellBorder($celladj); }
+				unset($celladj);
+			  }
+
+
+			  // Update maximum cell border width at LRTB edges of table - used for overall table width
+			  if ($j == 0 && $cbord['border_details']['L']['w']) {
+				$table['max_cell_border_width']['L'] = max($table['max_cell_border_width']['L'],$cbord['border_details']['L']['w']); 
+			  }
+			  if (($j == ($numcols-1) || ($j+$ccolsp) == $numcols ) && $cbord['border_details']['R']['w']) {
+				$table['max_cell_border_width']['R'] = max($table['max_cell_border_width']['R'],$cbord['border_details']['R']['w']); 
+			  }
+			  if ($i == 0 && $cbord['border_details']['T']['w']) {
+				$table['max_cell_border_width']['T'] = max($table['max_cell_border_width']['T'],$cbord['border_details']['T']['w']); 
+			  }
+			  if (($i == ($numrows-1) || ($i+$crowsp) == $numrows ) && $cbord['border_details']['B']['w']) {
+				$table['max_cell_border_width']['B'] = max($table['max_cell_border_width']['B'],$cbord['border_details']['B']['w']); 
+			  }
+			}
+/*-- END TABLES-ADVANCED-BORDERS --*/
+
+			if ($this->packTableData) { $cell['borderbin'] = $this->_packCellBorder($cbord); }
+
+			unset($cbord );
+
+			unset($cell );
+		}
+	  }
+	}
+	unset($cell );
+}
+// END FIX BORDERS ************************************************************************************
+
+
+function _reverseTableDir(&$table) {
+	$cells = &$table['cells'];
+	$numcols = $table['nc'];
+	$numrows = $table['nr'];
+	for( $i = 0 ; $i < $numrows ; $i++ ) { //Rows
+		$row = array();
+	  	for( $j = ($numcols-1) ; $j >= 0 ; $j-- ) { //Columns
+			if (isset($cells[$i][$j]) && $cells[$i][$j]) {
+				$cell = &$cells[$i][$j];
+				$col = $numcols - $j - 1;
+				if (isset($cell['colspan']) && $cell['colspan'] > 1) { $col -= ($cell['colspan']-1); }
+				// Nested content
+				if (isset($cell['textbuffer'])) {
+					for ($n=0; $n < count($cell['textbuffer']); $n++) {
+						$t = $cell['textbuffer'][$n][0];
+						if (substr($t,0,19) == "\xbb\xa4\xactype=nestedtable") {
+							$objattr = $this->_getObjAttr($t);
+							$objattr['col'] = $col;
+							$cell['textbuffer'][$n][0] = "\xbb\xa4\xactype=nestedtable,objattr=".serialize($objattr)."\xbb\xa4\xac";
+							$this->table[($this->tableLevel+1)][$objattr['nestedcontent']]['nestedpos'][1] = $col;
+						}
+					}
+				}
+				$row[$col] = $cells[$i][$j];
+				unset($cell);
+			}
+		}
+	  	for($f=0; $f < $numcols; $f++) { 
+			if (!isset($row[$f])) { $row[$f] = 0; }
+		}
+		$table['cells'][$i] = $row;
+	}
+}
+
+
+function _tableWrite(&$table, $split=false, $startrow=0, $startcol=0, $splitpg=0, $rety = 0){
+	$level = $table['level'];
+	$levelid = $table['levelid'];
+
+	$cells = &$table['cells'];
+	$numcols = $table['nc'];
+	$numrows = $table['nr'];
+	$maxbwtop = 0;
+	if ($this->ColActive && $level==1) { $this->breakpoints[$this->CurrCol][] = $this->y; }	// *COLUMNS*
+
+	if (!$split || ($startrow==0 && $splitpg==0) || $startrow>0){
+		// TABLE TOP MARGIN
+		if ($table['margin']['T']) {
+		   if (!$this->table_rotate && $level==1) {
+			$this->DivLn($table['margin']['T'],$this->blklvl,true,1); 	// collapsible
+		   }
+		   else {
+			$this->y += ($table['margin']['T']);
+		   }
+		}
+		// Advance down page by half width of top border
+		if ($table['borders_separate']) { 
+			if ($startrow>0 && (!isset($table['is_thead']) || count($table['is_thead'])==0))
+				$adv = $table['border_spacing_V']/2; 
+			else 
+				$adv = $table['padding']['T'] + $table['border_details']['T']['w'] + $table['border_spacing_V']/2; 
+		}
+		else { 
+			$adv = $table['max_cell_border_width']['T']/2; 
+		}
+		if (!$this->table_rotate && $level==1) { $this->DivLn($adv); }
+		else { $this->y += $adv; }
+	}
+
+	if ($level==1) {
+		$this->x = $this->lMargin  + $this->blk[$this->blklvl]['outer_left_margin'] + $this->blk[$this->blklvl]['padding_left'] + $this->blk[$this->blklvl]['border_left']['w'];
+		$x0 = $this->x; 
+		$y0 = $this->y;
+		$right = $x0 + $this->blk[$this->blklvl]['inner_width'];
+		$outerfilled = $this->y;	// Keep track of how far down the outer DIV bgcolor is painted (NB rowspans)
+		$this->outerfilled = $this->y;
+		$this->colsums = array();
+	}
+	else {
+		$x0 = $this->x; 
+		$y0 = $this->y;
+		$right = $x0 + $table['w'];
+	}
+
+	if ($this->table_rotate) {
+		$temppgwidth = $this->tbrot_maxw;
+		$this->PageBreakTrigger = $pagetrigger = $y0 + ($this->blk[$this->blklvl]['inner_width']);
+	   if ($level==1) {
+		$this->tbrot_y0 = $this->y - $adv - $table['margin']['T'] ;
+		$this->tbrot_x0 = $this->x;
+		$this->tbrot_w = $table['w'];
+		if ($table['borders_separate']) { $this->tbrot_h = $table['margin']['T'] + $table['padding']['T'] + $table['border_details']['T']['w'] + $table['border_spacing_V']/2; }
+		else { $this->tbrot_h = $table['margin']['T'] + $table['padding']['T'] + $table['max_cell_border_width']['T']; }
+	   }
+	}
+	else {
+		$this->PageBreakTrigger = $pagetrigger = ($this->h - $this->bMargin);
+	   	if ($level==1) {
+			$temppgwidth = $this->blk[$this->blklvl]['inner_width'];
+	   		if (isset($table['a']) and ($table['w'] < $this->blk[$this->blklvl]['inner_width'])) {
+				if ($table['a']=='C') { $x0 += ((($right-$x0) - $table['w'])/2); }
+				else if ($table['a']=='R') { $x0 = $right - $table['w']; }
+			}
+	   	}
+		else {
+			$temppgwidth = $table['w'];
+		}
+	}
+	if(!isset($table['overflow'])) { $table['overflow'] = null; }
+	if ($table['overflow']=='hidden' && $level==1 && !$this->table_rotate && !$this->ColActive) {
+		//Bounding rectangle to clip
+		$this->tableClipPath = sprintf('q %.3F %.3F %.3F %.3F re W n',$x0*_MPDFK,$this->h*_MPDFK,$this->blk[$this->blklvl]['inner_width']*_MPDFK,-$this->h*_MPDFK);
+		$this->_out($this->tableClipPath);
+	}
+	else { $this->tableClipPath = ''; }
+
+
+	if ($table['borders_separate']) { $indent = $table['margin']['L'] + $table['border_details']['L']['w'] + $table['padding']['L'] + $table['border_spacing_H']/2; }
+	else { $indent = $table['margin']['L'] + $table['max_cell_border_width']['L']/2; }
+	$x0 += $indent;
+
+	$returny = 0;
+	$lastCol = 0;
+	$tableheader = array();
+	$tablefooter = array();
+	$tableheaderrowheight = 0; 
+	$tablefooterrowheight = 0;
+	$footery = 0;
+
+	// mPD 3.0 Set the Page & Column where table starts
+	if (($this->mirrorMargins) && (($this->page)%2==0)) {	// EVEN
+		$tablestartpage = 'EVEN'; 
+	}
+	else if (($this->mirrorMargins) && (($this->page)%2==1)) {	// ODD
+		$tablestartpage = 'ODD'; 
+	}
+	else { $tablestartpage = ''; }
+	if ($this->ColActive) { $tablestartcolumn = $this->CurrCol; }
+	else { $tablestartcolumn = ''; }
+
+	$y = $h = 0;
+	for( $i = 0; $i < $numrows ; $i++ ) { //Rows
+	  if ($this->progressBar) { $this->UpdateProgressBar(7,intval(30 + ($i*40/$numrows)),' '); }	// *PROGRESS-BAR*
+	  if (isset($table['is_tfoot'][$i]) && $table['is_tfoot'][$i] && $level==1) { 
+		$tablefooterrowheight += $table['hr'][$i]; 
+		$tablefooter[$i][0]['trbackground-images'] = $table['trbackground-images'][$i];
+		$tablefooter[$i][0]['trgradients'] = $table['trgradients'][$i];
+		$tablefooter[$i][0]['trbgcolor'] = $table['bgcolor'][$i];
+	  	for( $j = $startcol ; $j < $numcols ; $j++ ) { //Columns
+			if (isset($cells[$i][$j]) && $cells[$i][$j]) {
+				$cell = &$cells[$i][$j];
+				if ($split) { 
+					if ($table['colPg'][$j] != $splitpg) { continue; }
+					list($x,$w) = $this->_splitTableGetWidth($table, $i, $j); 
+					$js = $j - $startcol;
+				}
+				else { 
+					list($x,$w) = $this->_tableGetWidth($table, $i, $j); 
+					$js = $j;
+				}
+
+				list($y,$h) = $this->_tableGetHeight($table, $i, $j);  
+				$x += $x0;
+				$y += $y0;
+				//Get info of tfoot ==>> table footer
+				$tablefooter[$i][$js]['x'] = $x;
+				$tablefooter[$i][$js]['y'] = $y;
+				$tablefooter[$i][$js]['h'] = $h;
+				$tablefooter[$i][$js]['w'] = $w;
+				if (isset($cell['textbuffer'])) { $tablefooter[$i][$js]['textbuffer'] = $cell['textbuffer']; }
+				else { $tablefooter[$i][$js]['textbuffer'] = ''; }
+				$tablefooter[$i][$js]['a'] = $cell['a'];
+				$tablefooter[$i][$js]['R'] = $cell['R'];
+				$tablefooter[$i][$js]['va'] = $cell['va'];
+				$tablefooter[$i][$js]['mih'] = $cell['mih'];
+				if (isset($cell['gradient'])) $tablefooter[$i][$js]['gradient'] = $cell['gradient'];	// *BACKGROUNDS*
+				if (isset($cell['background-image'])) $tablefooter[$i][$js]['background-image'] = $cell['background-image'];	// *BACKGROUNDS*
+				//CELL FILL BGCOLOR
+				if (!$this->simpleTables){
+			 		if ($this->packTableData) {
+						$c = $this->_unpackCellBorder($cell['borderbin']);
+						$tablefooter[$i][$js]['border'] = $c['border'];
+						$tablefooter[$i][$js]['border_details'] = $c['border_details'];
+					}
+			 		else {
+						$tablefooter[$i][$js]['border'] = $cell['border'];
+						$tablefooter[$i][$js]['border_details'] = $cell['border_details'];
+					}
+				}
+				else if ($this->simpleTables){
+					$tablefooter[$i][$js]['border'] = $table['simple']['border'];
+					$tablefooter[$i][$js]['border_details'] = $table['simple']['border_details'];
+				}
+				$tablefooter[$i][$js]['bgcolor'] = $cell['bgcolor'];
+				$tablefooter[$i][$js]['padding'] = $cell['padding'];
+				if (isset($cell['rowspan'])) $tablefooter[$i][$js]['rowspan'] = $cell['rowspan'];
+				if (isset($cell['colspan'])) $tablefooter[$i][$js]['colspan'] = $cell['colspan'];
+				if (isset($cell['direction'])) $tablefooter[$i][$js]['direction'] = $cell['direction'];
+				if (isset($cell['cellLineHeight'])) $tablefooter[$i][$js]['cellLineHeight'] = $cell['cellLineHeight'];
+				if (isset($cell['cellLineStackingStrategy'])) $tablefooter[$i][$js]['cellLineStackingStrategy'] = $cell['cellLineStackingStrategy'];
+				if (isset($cell['cellLineStackingShift'])) $tablefooter[$i][$js]['cellLineStackingShift'] = $cell['cellLineStackingShift'];
+			}
+		}
+	  }
+	}
+
+	if ($level==1) { $this->_out('___TABLE___BACKGROUNDS'.$this->uniqstr); }
+	$tableheaderadj = 0;
+	$tablefooteradj = 0;
+
+	$tablestartpageno = $this->page;
+
+	//Draw Table Contents and Borders
+	for( $i = 0; $i < $numrows ; $i++ ) { //Rows
+	  if ($split && $startrow > 0) { 
+		$thnr = (isset($table['is_thead']) ? count($table['is_thead']) : 0);
+		if ($i >= $thnr && $i < $startrow) { continue; }
+		if ($i == $startrow){ $returny = $rety - $tableheaderrowheight; }
+	  }
+
+	  // Get Maximum row/cell height in row - including rowspan>1 + 1 overlapping
+	  $maxrowheight = $this->_tableGetMaxRowHeight($table, $i);
+
+	  $skippage = false;
+	  $newpagestarted = false;
+	  for( $j = $startcol ; $j < $numcols ; $j++ ) { //Columns
+		if ($split) { 
+			if ($table['colPg'][$j] > $splitpg) { break; }
+			$lastCol = $j; 
+		}
+		if (isset($cells[$i][$j]) && $cells[$i][$j]) {
+			$cell = &$cells[$i][$j];
+			if ($split) { 
+				$lastCol = $j + (isset($cell['colspan']) ? ($cell['colspan']-1) : 0) ; 
+				list($x,$w) = $this->_splitTableGetWidth($table, $i, $j); 
+			}
+			else { list($x,$w) = $this->_tableGetWidth($table, $i, $j); }
+
+			list($y,$h) = $this->_tableGetHeight($table, $i, $j);
+			$x += $x0;
+			$y += $y0;
+			$y -= $returny;
+
+			if ($table['borders_separate']) { 
+			  if (!empty($tablefooter) || $i == ($numrows-1) || (isset($cell['rowspan']) && ($i+$cell['rowspan']) == $numrows)  || (!isset($cell['rowspan']) && ($i+1) == $numrows) ) {
+				$extra = $table['padding']['B'] + $table['border_details']['B']['w'] + $table['border_spacing_V']/2; 
+				//$extra = $table['margin']['B'] + $table['padding']['B'] + $table['border_details']['B']['w'] + $table['border_spacing_V']/2; 
+			  }
+			  else {
+				$extra = $table['border_spacing_V']/2; 
+			  }
+			}
+	  		else { $extra = $table['max_cell_border_width']['B']/2; }
+
+			if ($j==$startcol  && ((($y + $maxrowheight + $extra ) > ($pagetrigger+0.001)) || (($this->keepColumns || !$this->ColActive) && !empty($tablefooter) && ($y + $maxrowheight + $tablefooterrowheight + $extra) > $pagetrigger) && ($this->tableLevel==1 && $i < ($numrows - $table['headernrows']))) && ($y0 >0 || $x0 > 0) && !$this->InFooter && $this->autoPageBreak ) {
+
+				if (!$skippage) {
+					$finalSpread = true;
+					$firstSpread = true; 
+					if ($split) {
+						for($t=$startcol; $t<$numcols; $t++) {
+							// Are there more columns to print on a next page?
+							if ($table['colPg'][$t] > $splitpg) {
+								$finalSpread = false;
+								break;
+							}
+						}
+						if ($startcol>0) { $firstSpread = false; }
+					}
+
+		      		if (($this->keepColumns || !$this->ColActive) && !empty($tablefooter) && $i > 0 ) { 
+						$this->y = $y;
+						$ya = $this->y;
+						$this->TableHeaderFooter($tablefooter,$tablestartpage,$tablestartcolumn,'F',$level, $firstSpread, $finalSpread);
+						if ($this->table_rotate) {
+							$this->tbrot_h += $this->y - $ya ;
+						}
+						$tablefooteradj = $this->y - $ya ;
+					}
+					$y -= $y0;
+					$returny += $y;
+
+					$oldcolumn = $this->CurrCol;
+					if ($this->AcceptPageBreak()) {
+	  					$newpagestarted = true;
+						$this->y = $y + $y0;
+
+						// Move down to account for border-spacing or 
+						// extra half border width in case page breaks in middle
+						if($i>0 && !$this->table_rotate && $level==1 && !$this->ColActive) {
+							if ($table['borders_separate']) { 
+								$adv = $table['border_spacing_V']/2; 
+								// If table footer
+								if (($this->keepColumns || !$this->ColActive) && !empty($tablefooter) && $i > 0 ) { 
+									$adv += ($table['padding']['B'] + $table['border_details']['B']['w']); 
+								}
+							}
+							else { 
+								$maxbwtop = 0;
+								$maxbwbottom = 0;
+								if (!$this->simpleTables){
+									if (!empty($tablefooter)) { $maxbwbottom = $table['max_cell_border_width']['B']; }
+									else { 
+									   $brow = $i-1; 
+									   for( $ctj = 0 ; $ctj < $numcols ; $ctj++ ) {
+										if (isset($cells[$brow][$ctj]) && $cells[$brow][$ctj]) {
+											if ($this->packTableData) {
+			 	   								list($bt,$br,$bb,$bl) = $this->_getBorderWidths($cells[$brow][$ctj]['borderbin']);
+											}
+											else {
+												$bb = $cells[$brow][$ctj]['border_details']['B']['w'];
+											}
+											$maxbwbottom = max($maxbwbottom , $bb); 
+										}
+									   }
+									}
+									if (!empty($tableheader)) { $maxbwtop = $table['max_cell_border_width']['T']; }
+									else { 
+									   $trow = $i-1; 
+									   for( $ctj = 0 ; $ctj < $numcols ; $ctj++ ) {
+										if (isset($cells[$trow][$ctj]) && $cells[$trow][$ctj]) {
+											if ($this->packTableData) {
+			 	   								list($bt,$br,$bb,$bl) = $this->_getBorderWidths($cells[$trow][$ctj]['borderbin']);
+											}
+											else {
+												$bt = $cells[$trow][$ctj]['border_details']['T']['w'];
+											}
+											$maxbwtop = max($maxbwtop , $bt);
+										}
+									   }
+									}
+								}
+								else if ($this->simpleTables){
+									$maxbwtop = $table['simple']['border_details']['T']['w'];
+									$maxbwbottom = $table['simple']['border_details']['B']['w']; 
+								}
+								$adv = $maxbwbottom /2;
+							}
+							$this->y += $adv;
+						}
+
+						// Rotated table split over pages - needs this->y for borders/backgrounds
+						if($i>0 && $this->table_rotate && $level==1) {
+				//			$this->y = $y0 + $this->tbrot_w;
+						}
+
+						if ($this->tableClipPath ) { $this->_out("Q"); }
+
+						$bx = $x0;
+						$by = $y0;
+
+						if ($table['borders_separate']) { 
+							$bx -= ($table['padding']['L'] + $table['border_details']['L']['w'] + $table['border_spacing_H']/2); 
+							if ($tablestartpageno != $this->page) {	// IF already broken across a previous pagebreak
+								$by += $table['max_cell_border_width']['T']/2; 
+								if (empty($tableheader)) { $by -= ($table['border_spacing_V']/2); }
+							}
+							else { 
+								$by -= ($table['padding']['T'] + $table['border_details']['T']['w'] + $table['border_spacing_V']/2); 
+							}
+						}
+
+						else if ($tablestartpageno != $this->page && !empty($tableheader)) { $by += $maxbwtop /2; }	
+	
+						$by -= $tableheaderadj;
+						$bh = $this->y - $by + $tablefooteradj;
+  						if (!$table['borders_separate']) { $bh -= $adv ; }
+						if ($split) { 
+							$bw = 0;
+							for($t=$startcol; $t<$numcols; $t++) {
+								if ($table['colPg'][$t] == $splitpg) { $bw += $table['wc'][$t]; }
+								if ($table['colPg'][$t] > $splitpg) { break; }
+							}
+							if ($table['borders_separate']) { 
+								if ($firstSpread) { 
+									$bw += $table['padding']['L'] + $table['border_details']['L']['w'] + $table['border_spacing_H']; 
+								}
+								else {
+									$bx += ($table['padding']['L'] + $table['border_details']['L']['w']); 
+									$bw += $table['border_spacing_H']; 
+								}
+								if ($finalSpread) { 
+									$bw += $table['padding']['R'] + $table['border_details']['R']['w']/2 + $table['border_spacing_H']; 
+								}
+							}
+						}
+						else {
+							$bw = $table['w'] - ($table['max_cell_border_width']['L']/2) - ($table['max_cell_border_width']['R']/2) - $table['margin']['L'] - $table['margin']['R'];
+						}
+
+		      			if ($this->splitTableBorderWidth && ($this->keepColumns || !$this->ColActive) && empty($tablefooter) && $i > 0 && $table['border_details']['B']['w']) {
+							$prevDrawColor = $this->DrawColor;
+							$lw = $this->LineWidth;
+							$this->SetLineWidth($this->splitTableBorderWidth);
+							$this->SetDColor($table['border_details']['B']['c']);	
+							$this->SetLineJoin(0);
+							$this->SetLineCap(0);
+ 							$blx = $bx;
+							$blw = $bw;
+ 							if (!$table['borders_separate']) { 
+								$blx -= ($table['max_cell_border_width']['L']/2);
+								$blw += ($table['max_cell_border_width']['L']/2 + $table['max_cell_border_width']['R']/2);
+							}
+							$this->Line($blx,$this->y+($this->splitTableBorderWidth/2),$blx+$blw,$this->y+($this->splitTableBorderWidth/2));
+							$this->DrawColor = $prevDrawColor;
+							$this->_out($this->DrawColor);
+							$this->SetLineWidth($lw);
+							$this->SetLineJoin(2);
+							$this->SetLineCap(2);
+						} 
+
+						if (!$this->ColActive && ($i > 0 || $j > 0)) {
+							if (isset($table['bgcolor'][-1])) { 
+					  			$color = $this->ConvertColor($table['bgcolor'][-1]);
+					  			if ($color) {
+								   if (!$table['borders_separate']) { $bh -= $table['max_cell_border_width']['B']/2; }
+								   $this->tableBackgrounds[$level*9][] = array('gradient'=>false, 'x'=>$bx, 'y'=>$by, 'w'=>$bw, 'h'=>$bh, 'col'=>$color);
+								}
+							}
+
+/*-- BACKGROUNDS --*/
+							if (isset($table['gradient'])) { 
+								$g = $this->grad->parseBackgroundGradient($table['gradient']);
+								if ($g) {
+								   $this->tableBackgrounds[$level*9+1][] = array('gradient'=>true, 'x'=>$bx, 'y'=>$by, 'w'=>$bw, 'h'=>$bh, 'gradtype'=>$g['type'], 'stops'=>$g['stops'], 'colorspace'=>$g['colorspace'], 'coords'=>$g['coords'], 'extend'=>$g['extend'], 'clippath'=>'');
+								}
+							}
+
+							if (isset($table['background-image'])) { 
+							   if ($table['background-image']['gradient'] && preg_match('/(-moz-)*(repeating-)*(linear|radial)-gradient/', $table['background-image']['gradient'] )) {
+								$g = $this->grad->parseMozGradient( $table['background-image']['gradient'] );
+								if ($g) {
+								   $this->tableBackgrounds[$level*9+1][] = array('gradient'=>true, 'x'=>$bx, 'y'=>$by, 'w'=>$bw, 'h'=>$bh, 'gradtype'=>$g['type'], 'stops'=>$g['stops'], 'colorspace'=>$g['colorspace'], 'coords'=>$g['coords'], 'extend'=>$g['extend'], 'clippath'=>'');
+								}
+							   }
+							   else { 
+								$image_id = $table['background-image']['image_id'];
+								$orig_w = $table['background-image']['orig_w'];
+								$orig_h = $table['background-image']['orig_h'];
+								$x_pos = $table['background-image']['x_pos'];
+								$y_pos = $table['background-image']['y_pos'];
+								$x_repeat = $table['background-image']['x_repeat'];
+								$y_repeat = $table['background-image']['y_repeat'];
+								$resize = $table['background-image']['resize'];
+								$opacity = $table['background-image']['opacity'];
+								$itype = $table['background-image']['itype'];
+								$this->tableBackgrounds[$level*9+2][] = array('x'=>$bx, 'y'=>$by, 'w'=>$bw, 'h'=>$bh, 'image_id'=>$image_id, 'orig_w'=>$orig_w, 'orig_h'=>$orig_h, 'x_pos'=>$x_pos, 'y_pos'=>$y_pos, 'x_repeat'=>$x_repeat, 'y_repeat'=>$y_repeat, 'clippath'=>'', 'resize'=>$resize, 'opacity'=>$opacity, 'itype'=>$itype);
+							   }
+							}
+/*-- END BACKGROUNDS --*/
+						}
+
+						// $this->AcceptPageBreak() has moved tablebuffer to $this->pages content
+						if ($this->tableBackgrounds) {
+						   $s = $this->PrintTableBackgrounds();
+	   					   if ($this->bufferoutput) {
+							$this->headerbuffer = preg_replace('/(___TABLE___BACKGROUNDS'.$this->uniqstr.')/', '\\1'."\n".$s."\n", $this->headerbuffer);
+							$this->headerbuffer = preg_replace('/(___TABLE___BACKGROUNDS'.$this->uniqstr.')/', " ", $this->headerbuffer );
+						   }
+						   else {
+							$this->pages[$this->page] = preg_replace('/(___TABLE___BACKGROUNDS'.$this->uniqstr.')/', '\\1'."\n".$s."\n", $this->pages[$this->page]);
+							$this->pages[$this->page] = preg_replace('/(___TABLE___BACKGROUNDS'.$this->uniqstr.')/', " ", $this->pages[$this->page]);
+						   }
+						   $this->tableBackgrounds = array();
+						}
+
+						if ($split) {
+							if ($i == 0 && $j == 0) { $y0 = -1; }
+							else if ($finalSpread) { 
+								$splitpg = 0;
+								$startcol = 0;
+								$startrow = $i;
+							}
+							else {
+								$splitpg++;
+								$startcol = $t;
+								$returny -= $y;
+							}
+							return array(false, $startrow, $startcol, $splitpg, $returny, $y0);
+						}
+
+						$this->AddPage($this->CurOrientation);
+
+						$this->_out('___TABLE___BACKGROUNDS'.$this->uniqstr);
+
+
+						if ($this->tableClipPath ) { $this->_out($this->tableClipPath); }
+
+						// Added to correct for OddEven Margins
+						$x= $x + $this->MarginCorrection;
+						$x0= $x0 + $this->MarginCorrection;
+
+		      			if ($this->splitTableBorderWidth && ($this->keepColumns || !$this->ColActive) && empty($tableheader) && $i > 0 && $table['border_details']['T']['w'] ) {
+							$prevDrawColor = $this->DrawColor;
+							$lw = $this->LineWidth;
+							$this->SetLineWidth($this->splitTableBorderWidth);
+							$this->SetDColor($table['border_details']['T']['c']);	
+							$this->SetLineJoin(0);
+							$this->SetLineCap(0);
+							$blx += $this->MarginCorrection;
+							$this->Line($blx,$this->y-($this->splitTableBorderWidth/2),$blx+$blw,$this->y-($this->splitTableBorderWidth/2));
+							$this->DrawColor = $prevDrawColor;
+							$this->_out($this->DrawColor);
+							$this->SetLineWidth($lw);
+							$this->SetLineJoin(2);
+							$this->SetLineCap(2);
+						} 
+
+						// Move down to account for half of top border-spacing or 
+						// extra half border width in case page was broken in middle
+						if($i>0 && !$this->table_rotate && $level==1 && $table['headernrows']==0) {
+							if ($table['borders_separate']) { $adv = $table['border_spacing_V']/2; }
+							else { 
+								$maxbwtop = 0;
+								for( $ctj = 0 ; $ctj < $numcols ; $ctj++ ) {
+									if (isset($cells[$i][$ctj]) && $cells[$i][$ctj]) {
+										if (!$this->simpleTables){
+			 								if ($this->packTableData) {
+			 	   								list($bt,$br,$bb,$bl) = $this->_getBorderWidths($cells[$i][$ctj]['borderbin']);
+											}
+											else {
+												$bt = $cells[$i][$ctj]['border_details']['T']['w'];
+											}
+											$maxbwtop = max($maxbwtop, $bt); 
+										}
+										else if ($this->simpleTables){
+											$maxbwtop = max($maxbwtop, $table['simple']['border_details']['T']['w']); 
+										}
+									}
+								}
+								$adv = $maxbwtop /2;
+							}
+							$this->y += $adv;
+						}
+
+
+						if ($this->table_rotate) {
+							$this->tbrot_x0 = $this->lMargin  + $this->blk[$this->blklvl]['outer_left_margin'] + $this->blk[$this->blklvl]['padding_left'] + $this->blk[$this->blklvl]['border_left']['w'];
+							if ($table['borders_separate']) { $this->tbrot_h = $table['margin']['T'] + $table['padding']['T'] + $table['border_details']['T']['w'] + $table['border_spacing_V']/2; }
+							else { $this->tbrot_h = $table['margin']['T'] + $table['max_cell_border_width']['T'] ; }
+							$this->tbrot_y0 = $this->y;
+							$pagetrigger = $y0 - $tableheaderadj + ($this->blk[$this->blklvl]['inner_width']);
+						}
+						else {
+							$pagetrigger = $this->PageBreakTrigger;
+						}
+
+						if ($this->kwt_saved && $level==1) {
+							$this->kwt_moved = true;
+						}
+
+
+             				if (!empty($tableheader)) {
+							$ya = $this->y;
+							$this->TableHeaderFooter($tableheader,$tablestartpage,$tablestartcolumn,'H',$level);
+							if ($this->table_rotate) {
+								$this->tbrot_h = $this->y - $ya ;
+							}
+							$tableheaderadj = $this->y - $ya ;
+						}
+
+						else if ($i==0 && !$this->table_rotate && $level==1 && !$this->ColActive) {
+							// Advance down page
+							if ($table['borders_separate']) { $adv = $table['border_spacing_V']/2 + $table['border_details']['T']['w'] + $table['padding']['T'];  }
+							else { $adv = $table['max_cell_border_width']['T'] /2 ; }
+							if ($adv) { 
+							   if ($this->table_rotate) {
+								$this->y += ($adv);
+							   }
+							   else {
+								$this->DivLn($adv,$this->blklvl,true); 
+							   }
+							}
+						}
+
+						$outerfilled = 0;
+						$y = $y0 = $this->y;
+					}
+
+/*-- COLUMNS --*/
+					// COLS
+					// COLUMN CHANGE
+					if ($this->CurrCol != $oldcolumn) {
+						// Added to correct for Columns
+						$x += $this->ChangeColumn * ($this->ColWidth+$this->ColGap);
+						$x0 += $this->ChangeColumn * ($this->ColWidth+$this->ColGap);
+						if ($this->CurrCol == 0) { 	// just added a page - possibly with tableheader
+							$y0 = $this->y; 	// this->y0 is global used by Columns - $y0 is internal to tablewrite
+						}
+						else {
+							$y0 = $this->y0; 	// this->y0 is global used by Columns - $y0 is internal to tablewrite
+						}
+						$y = $y0;
+						$outerfilled = 0;
+		      			if ($this->CurrCol != 0 && ($this->keepColumns && $this->ColActive) && !empty($tableheader) && $i > 0 ) { 
+							$this->x = $x; 
+							$this->y = $y;
+							$this->TableHeaderFooter($tableheader,$tablestartpage,$tablestartcolumn,'H',$level);
+							$y0 = $y=$this->y;
+						}
+					}
+/*-- END COLUMNS --*/
+				}
+				$skippage = true;
+			}
+
+			$this->x = $x; 
+			$this->y = $y;
+
+			if ($this->kwt_saved && $level==1) {
+				$this->printkwtbuffer();
+				$x0 = $x = $this->x; 
+				$y0 = $y = $this->y;
+				$this->kwt_moved = false;
+				$this->kwt_saved = false;
+			}
+
+
+			// Set the Page & Column where table actually starts
+			if ($i==0 && $j==0 && $level==1) {
+				if (($this->mirrorMargins) && (($this->page)%2==0)) {				// EVEN
+					$tablestartpage = 'EVEN'; 
+				}
+				else if (($this->mirrorMargins) && (($this->page)%2==1)) {				// ODD
+					$tablestartpage = 'ODD'; 
+				}
+				else { $tablestartpage = ''; }
+				$tablestartpageno = $this->page;
+				if ($this->ColActive) { $tablestartcolumn = $this->CurrCol; }	// *COLUMNS*
+			}
+
+
+			//ALIGN
+			$align = $cell['a'];
+
+
+/*-- COLUMNS --*/
+			// If outside columns, this is done in PaintDivBB
+			if ($this->ColActive) {
+			 //OUTER FILL BGCOLOR of DIVS
+			 if ($this->blklvl > 0 && ($j==0) && !$this->table_rotate && $level==1) {
+			  $firstblockfill = $this->GetFirstBlockFill();
+			  if ($firstblockfill && $this->blklvl >= $firstblockfill) {
+			   $divh = $maxrowheight;
+			   // Last row
+	  		   if ((!isset($cell['rowspan']) && $i == $numrows-1) || (isset($cell['rowspan']) && (($i == $numrows-1 && $cell['rowspan']<2) || ($cell['rowspan']>1 && ($i + $cell['rowspan']-1) == $numrows-1)))) {
+				if ($table['borders_separate']) { 
+					$adv = $table['margin']['B'] + $table['padding']['B'] + $table['border_details']['B']['w'] + $table['border_spacing_V']/2; 
+				}
+				else { 
+					$adv = $table['margin']['B'] + $table['max_cell_border_width']['B']/2; 
+				}
+				$divh += $adv;  //last row: fill bottom half of bottom border (y advanced at end)
+			   }
+
+			   if (($this->y + $divh) > $outerfilled ) {	// if not already painted by previous rowspan
+				$bak_x = $this->x;
+				$bak_y = $this->y;
+				if ($outerfilled > $this->y) { 
+					$divh = ($this->y + $divh) - $outerfilled;
+					$this->y = $outerfilled; 
+				}
+
+				$this->DivLn($divh,-3,false);
+				$outerfilled = $this->y + $divh;
+				// Reset current block fill
+				$bcor = $this->blk[$this->blklvl]['bgcolorarray'];
+				if ($bcor ) $this->SetFColor($bcor);
+				$this->x = $bak_x;
+				$this->y = $bak_y;
+			    }
+			  }
+			 }
+			}
+
+
+			//TABLE BACKGROUND FILL BGCOLOR - for cellSpacing
+			if ($this->ColActive) {
+			 if ($table['borders_separate']) { 
+			   $fill = isset($table['bgcolor'][-1]) ? $table['bgcolor'][-1] : 0;
+			   if ($fill) {
+  				$color = $this->ConvertColor($fill);
+  				if ($color) {
+					$xadj = ($table['border_spacing_H']/2);
+					$yadj = ($table['border_spacing_V']/2);
+					$wadj = $table['border_spacing_H'];
+					$hadj = $table['border_spacing_V'];
+ 			   		if ($i == 0) {		// Top
+						$yadj += $table['padding']['T'] + $table['border_details']['T']['w'] ;
+						$hadj += $table['padding']['T'] + $table['border_details']['T']['w'] ;
+			   		}
+			   		if ($j == 0) {		// Left
+						$xadj += $table['padding']['L'] + $table['border_details']['L']['w'] ;
+						$wadj += $table['padding']['L'] + $table['border_details']['L']['w'] ;
+			   		}
+			   		if ($i == ($numrows-1) || (isset($cell['rowspan']) && ($i+$cell['rowspan']) == $numrows)  || (!isset($cell['rowspan']) && ($i+1) == $numrows)) {	// Bottom
+						$hadj += $table['padding']['B'] + $table['border_details']['B']['w'] ;
+			   		}
+			   		if ($j == ($numcols-1) || (isset($cell['colspan']) && ($j+$cell['colspan']) == $numcols)  || (!isset($cell['colspan']) && ($j+1) == $numcols)) {	// Right
+						$wadj += $table['padding']['R'] + $table['border_details']['R']['w'] ;
+			   		}
+					$this->SetFColor($color);
+					$this->Rect($x - $xadj, $y - $yadj, $w + $wadj, $h + $hadj, 'F');
+				}
+			   }
+			 }
+			}
+/*-- END COLUMNS --*/
+
+			if ($table['empty_cells']!='hide' || !empty($cell['textbuffer']) || (isset($cell['nestedcontent']) && $cell['nestedcontent']) || !$table['borders_separate']  ) { $paintcell = true; }
+			else { $paintcell = false; } 
+
+			//Set Borders
+			$bord = 0; 
+			$bord_det = array();
+
+			if (!$this->simpleTables){
+			 	if ($this->packTableData) {
+					$c = $this->_unpackCellBorder($cell['borderbin']);
+					$bord = $c['border'];
+					$bord_det = $c['border_details'];
+				}
+				else {
+					$bord = $cell['border'];
+					$bord_det = $cell['border_details'];
+				}
+			}
+			else if ($this->simpleTables){
+					$bord = $table['simple']['border'];
+					$bord_det = $table['simple']['border_details'];
+			}
+
+			//TABLE ROW OR CELL FILL BGCOLOR
+			$fill = 0;
+			if (isset($cell['bgcolor']) && $cell['bgcolor'] && $cell['bgcolor']!='transparent') { 
+				$fill = $cell['bgcolor'];
+				$leveladj = 6;
+			}
+			else if (isset($table['bgcolor'][$i]) && $table['bgcolor'][$i] && $table['bgcolor'][$i]!='transparent') { // Row color
+				$fill = $table['bgcolor'][$i];
+				$leveladj = 3;
+			}
+			if ($fill && $paintcell) {
+  				$color = $this->ConvertColor($fill);
+  				if ($color) {
+ 					if ($table['borders_separate']) { 
+					   if ($this->ColActive) {
+						$this->SetFColor($color);
+						$this->Rect($x+ ($table['border_spacing_H']/2), $y+ ($table['border_spacing_V']/2), $w- $table['border_spacing_H'], $h- $table['border_spacing_V'], 'F');
+					   }
+					   else {
+		   				$this->tableBackgrounds[$level*9+$leveladj][] = array('gradient'=>false, 'x'=>($x + ($table['border_spacing_H']/2)), 'y'=>($y + ($table['border_spacing_V']/2)), 'w'=>($w - $table['border_spacing_H']), 'h'=>($h - $table['border_spacing_V']), 'col'=>$color);
+					   }
+					}
+ 					else { 
+					   if ($this->ColActive) {
+						$this->SetFColor($color);
+	 					$this->Rect($x, $y, $w, $h, 'F');
+					   }
+					   else {
+		   				$this->tableBackgrounds[$level*9+$leveladj][] = array('gradient'=>false, 'x'=>$x, 'y'=>$y, 'w'=>$w, 'h'=>$h, 'col'=>$color);
+					   }
+					}
+				}
+			}
+
+/*-- BACKGROUNDS --*/
+			if (isset($cell['gradient']) && $cell['gradient'] && $paintcell){
+				$g = $this->grad->parseBackgroundGradient($cell['gradient']);
+				if ($g) {
+ 				  if ($table['borders_separate']) { 
+ 					$px = $x+ ($table['border_spacing_H']/2);
+					$py = $y+ ($table['border_spacing_V']/2);
+					$pw = $w- $table['border_spacing_H'];
+					$ph = $h- $table['border_spacing_V'];
+				  }
+				  else {
+					$px = $x;
+					$py = $y;
+					$pw = $w;
+					$ph = $h;
+				  }
+				  if ($this->ColActive) {
+					$this->grad->Gradient($px, $py, $pw, $ph, $g['type'], $g['stops'], $g['colorspace'], $g['coords'], $g['extend']);
+				  }
+				  else {
+		   			$this->tableBackgrounds[$level*9+7][] = array('gradient'=>true, 'x'=>$px, 'y'=>$py, 'w'=>$pw, 'h'=>$ph, 'gradtype'=>$g['type'], 'stops'=>$g['stops'], 'colorspace'=>$g['colorspace'], 'coords'=>$g['coords'], 'extend'=>$g['extend'], 'clippath'=>'');
+				  }
+				}
+			}
+
+			if (isset($cell['background-image']) && $paintcell) {
+			  if (isset($cell['background-image']['gradient']) && $cell['background-image']['gradient'] && preg_match('/(-moz-)*(repeating-)*(linear|radial)-gradient/', $cell['background-image']['gradient'] )) {
+				$g = $this->grad->parseMozGradient( $cell['background-image']['gradient'] );
+				if ($g) {
+ 				  if ($table['borders_separate']) { 
+ 					$px = $x+ ($table['border_spacing_H']/2);
+					$py = $y+ ($table['border_spacing_V']/2);
+					$pw = $w- $table['border_spacing_H'];
+					$ph = $h- $table['border_spacing_V'];
+				  }
+				  else {
+					$px = $x;
+					$py = $y;
+					$pw = $w;
+					$ph = $h;
+				  }
+				  if ($this->ColActive) {
+					$this->grad->Gradient($px, $py, $pw, $ph, $g['type'], $g['stops'], $g['colorspace'], $g['coords'], $g['extend']);
+				  }
+				  else {
+		  			$this->tableBackgrounds[$level*9+7][] = array('gradient'=>true, 'x'=>$px, 'y'=>$py, 'w'=>$pw, 'h'=>$ph, 'gradtype'=>$g['type'], 'stops'=>$g['stops'], 'colorspace'=>$g['colorspace'], 'coords'=>$g['coords'], 'extend'=>$g['extend'], 'clippath'=>'');
+				  }
+				}
+			  }
+			  else if (isset($cell['background-image']['image_id']) && $cell['background-image']['image_id']) {	// Background pattern
+				$n = count($this->patterns)+1;
+ 				if ($table['borders_separate']) { 
+ 					$px = $x+ ($table['border_spacing_H']/2);
+					$py = $y+ ($table['border_spacing_V']/2);
+					$pw = $w- $table['border_spacing_H'];
+					$ph = $h- $table['border_spacing_V'];
+				}
+				else {
+					$px = $x;
+					$py = $y;
+					$pw = $w;
+					$ph = $h;
+				}
+				if ($this->ColActive) {
+					list($orig_w, $orig_h, $x_repeat, $y_repeat) = $this->_resizeBackgroundImage($cell['background-image']['orig_w'], $cell['background-image']['orig_h'], $pw, $ph, $cell['background-image']['resize'], $cell['background-image']['x_repeat'], $cell['background-image']['y_repeat']);
+					$this->patterns[$n] = array('x'=>$px, 'y'=>$py, 'w'=>$pw, 'h'=>$ph, 'pgh'=>$this->h, 'image_id'=>$cell['background-image']['image_id'], 'orig_w'=>$orig_w, 'orig_h'=>$orig_h, 'x_pos'=>$cell['background-image']['x_pos'] , 'y_pos'=>$cell['background-image']['y_pos'] , 'x_repeat'=>$x_repeat, 'y_repeat'=>$y_repeat);
+					if ($cell['background-image']['opacity']>0 && $cell['background-image']['opacity']<1) { $opac = $this->SetAlpha($cell['background-image']['opacity'],'Normal',true); }
+					else { $opac = ''; }
+					$this->_out(sprintf('q /Pattern cs /P%d scn %s %.3F %.3F %.3F %.3F re f Q', $n, $opac, $px*_MPDFK, ($this->h-$py)*_MPDFK, $pw*_MPDFK, -$ph*_MPDFK));
+				}
+				else {
+					$image_id = $cell['background-image']['image_id'];
+					$orig_w = $cell['background-image']['orig_w'];
+					$orig_h = $cell['background-image']['orig_h'];
+					$x_pos = $cell['background-image']['x_pos'];
+					$y_pos = $cell['background-image']['y_pos'];
+					$x_repeat = $cell['background-image']['x_repeat'];
+					$y_repeat = $cell['background-image']['y_repeat'];
+					$resize = $cell['background-image']['resize'];
+					$opacity = $cell['background-image']['opacity'];
+					$itype = $cell['background-image']['itype'];
+					$this->tableBackgrounds[$level*9+8][] = array('x'=>$px, 'y'=>$py, 'w'=>$pw, 'h'=>$ph, 'image_id'=>$image_id, 'orig_w'=>$orig_w, 'orig_h'=>$orig_h, 'x_pos'=>$x_pos, 'y_pos'=>$y_pos, 'x_repeat'=>$x_repeat, 'y_repeat'=>$y_repeat, 'clippath'=>'', 'resize'=>$resize, 'opacity'=>$opacity, 'itype'=>$itype);
+				}
+			  }
+			}
+/*-- END BACKGROUNDS --*/
+
+			 if (isset($cell['colspan']) && $cell['colspan']>1) { $ccolsp = $cell['colspan']; }
+			 else { $ccolsp = 1; }
+			 if (isset($cell['rowspan']) && $cell['rowspan']>1) { $crowsp = $cell['rowspan']; }
+			 else { $crowsp = 1; }
+
+
+			// but still need to do this for repeated headers...
+			if (!$table['borders_separate'] && $this->tabletheadjustfinished && !$this->simpleTables){
+			  if (isset($table['topntail']) && $table['topntail']) {
+					$bord_det['T'] = $this->border_details($table['topntail']);
+					$bord_det['T']['w'] /= $this->shrin_k;
+					$this->setBorder($bord, _BORDER_TOP); 
+			  }
+			  if (isset($table['thead-underline']) && $table['thead-underline']) {
+					$bord_det['T'] = $this->border_details($table['thead-underline']);
+					$bord_det['T']['w'] /= $this->shrin_k;
+					$this->setBorder($bord, _BORDER_TOP); 
+			  }
+			}
+
+
+			//Get info of first row ==>> table header
+			//Use > 1 row if THEAD
+			if (isset($table['is_thead'][$i]) && $table['is_thead'][$i] && $level==1) {
+				if ($j==0) $tableheaderrowheight += $table['hr'][$i]; 
+				$tableheader[$i][0]['trbackground-images'] = (isset($table['trbackground-images'][$i]) ? $table['trbackground-images'][$i] : null);
+				$tableheader[$i][0]['trgradients'] = (isset($table['trgradients'][$i]) ? $table['trgradients'][$i] : null);
+				$tableheader[$i][0]['trbgcolor'] = (isset($table['bgcolor'][$i]) ? $table['bgcolor'][$i] : null);
+				$tableheader[$i][$j]['x'] = $x;
+				$tableheader[$i][$j]['y'] = $y;
+				$tableheader[$i][$j]['h'] = $h;
+				$tableheader[$i][$j]['w'] = $w;
+				if (isset($cell['textbuffer'])) { $tableheader[$i][$j]['textbuffer'] = $cell['textbuffer']; }
+				else { $tableheader[$i][$j]['textbuffer'] = ''; }
+				$tableheader[$i][$j]['a'] = $cell['a'];
+				$tableheader[$i][$j]['R'] = $cell['R'];
+
+				$tableheader[$i][$j]['va'] = $cell['va'];
+				$tableheader[$i][$j]['mih'] = $cell['mih'];
+				$tableheader[$i][$j]['gradient'] = (isset($cell['gradient']) ? $cell['gradient'] : null);	// *BACKGROUNDS*
+				$tableheader[$i][$j]['background-image'] = (isset($cell['background-image']) ? $cell['background-image'] : null);	// *BACKGROUNDS*
+				$tableheader[$i][$j]['rowspan'] = (isset($cell['rowspan']) ? $cell['rowspan'] : null);
+				$tableheader[$i][$j]['colspan'] = (isset($cell['colspan']) ? $cell['colspan'] : null);
+				$tableheader[$i][$j]['bgcolor'] = $cell['bgcolor'];
+
+				if (!$this->simpleTables){
+					$tableheader[$i][$j]['border'] = $bord;
+					$tableheader[$i][$j]['border_details'] = $bord_det;
+				}
+				else if ($this->simpleTables){
+					$tableheader[$i][$j]['border'] = $table['simple']['border'];
+					$tableheader[$i][$j]['border_details'] = $table['simple']['border_details'];
+				}
+				$tableheader[$i][$j]['padding'] = $cell['padding'];
+				if (isset($cell['direction'])) $tableheader[$i][$j]['direction'] = $cell['direction'];
+				if (isset($cell['cellLineHeight'])) $tableheader[$i][$j]['cellLineHeight'] = $cell['cellLineHeight'];
+				if (isset($cell['cellLineStackingStrategy'])) $tableheader[$i][$j]['cellLineStackingStrategy'] = $cell['cellLineStackingStrategy'];
+				if (isset($cell['cellLineStackingShift'])) $tableheader[$i][$j]['cellLineStackingShift'] = $cell['cellLineStackingShift'];
+			}
+
+			// CELL BORDER
+			if ($bord) { 
+ 				if ($table['borders_separate'] && $paintcell) {
+ 					$this->_tableRect($x + ($table['border_spacing_H']/2)+($bord_det['L']['w'] /2), $y+ ($table['border_spacing_V']/2)+($bord_det['T']['w'] /2), $w-$table['border_spacing_H']-($bord_det['L']['w'] /2)-($bord_det['R']['w'] /2), $h- $table['border_spacing_V']-($bord_det['T']['w'] /2)-($bord_det['B']['w']/2), $bord, $bord_det, false, $table['borders_separate']);
+				}
+ 				else if (!$table['borders_separate']) { 
+					$this->_tableRect($x, $y, $w, $h, $bord, $bord_det, true, $table['borders_separate']); 	// true causes buffer
+				}
+
+			}
+
+			//VERTICAL ALIGN
+			if ($cell['R'] && INTVAL($cell['R']) > 0 && INTVAL($cell['R']) < 90 && isset($cell['va']) && $cell['va']!='B') { $cell['va']='B';}
+			if (!isset($cell['va']) || $cell['va']=='M') $this->y += ($h-$cell['mih'])/2;
+			elseif (isset($cell['va']) && $cell['va']=='B') $this->y += $h-$cell['mih'];
+
+			// NESTED CONTENT 
+
+			// TEXT (and nested tables)
+
+			$this->divwidth=$w;
+			if (!empty($cell['textbuffer'])) {
+				$this->cellTextAlign=$align;
+				$this->cellLineHeight = $cell['cellLineHeight'];
+				$this->cellLineStackingStrategy = $cell['cellLineStackingStrategy'];
+				$this->cellLineStackingShift = $cell['cellLineStackingShift'];
+				if ($level==1) {
+					if (isset($table['is_tfoot'][$i]) && $table['is_tfoot'][$i]) {
+						if (preg_match('/{colsum([0-9]*)[_]*}/', $cell['textbuffer'][0][0], $m)) {
+							$rep = sprintf("%01.".intval($m[1])."f", $this->colsums[$j]);
+							$cell['textbuffer'][0][0] = preg_replace('/{colsum[0-9_]*}/', $rep ,$cell['textbuffer'][0][0]);
+						}
+					}
+					else if (!isset($table['is_thead'][$i])) { 
+						if (isset($this->colsums[$j])) { $this->colsums[$j] += floatval(preg_replace('/^[^0-9\.\,]*/','',$cell['textbuffer'][0][0])); }
+						else { $this->colsums[$j] = floatval(preg_replace('/^[^0-9\.\,]*/','',$cell['textbuffer'][0][0])); }
+					}
+				}
+				$opy = $this->y;
+				// mPDF ITERATION
+				if ($this->iterationCounter) {
+				   foreach($cell['textbuffer'] AS $k=>$t) {
+					if (preg_match('/{iteration ([a-zA-Z0-9_]+)}/',$t[0], $m)) {
+						$vname = '__'.$m[1].'_';
+						if (!isset($this->$vname)) { $this->$vname = 1; }
+						else { $this->$vname++; }
+						$cell['textbuffer'][$k][0] = preg_replace('/{iteration '.$m[1].'}/', $this->$vname, $cell['textbuffer'][$k][0]);
+					}
+				   }
+				}
+
+
+				if ($cell['R']) {
+					$cellPtSize = $cell['textbuffer'][0][11] / $this->shrin_k;
+					if (!$cellPtSize) { $cellPtSize = $this->default_font_size; }
+					$cellFontHeight = ($cellPtSize/_MPDFK);
+					$opx = $this->x;
+					$angle = INTVAL($cell['R']);
+					// Only allow 45 to 89 degrees (when bottom-aligned) or exactly 90 or -90
+					if ($angle > 90) { $angle = 90; }
+					else if ($angle > 0 && $angle <45) { $angle = 45; }
+					else if ($angle < 0) { $angle = -90; }
+					$offset = ((sin(deg2rad($angle))) * 0.37 * $cellFontHeight);
+					if (isset($cell['a']) && $cell['a']=='R') { 
+						$this->x += ($w) + ($offset) - ($cellFontHeight/3) - ($cell['padding']['R'] + ($table['border_spacing_H']/2)); 
+					}
+					else if (!isset($cell['a']) || $cell['a']=='C') { 
+						$this->x += ($w/2) + ($offset); 
+					}
+					else { 
+						$this->x += ($offset) + ($cellFontHeight/3)+($cell['padding']['L'] +($table['border_spacing_H']/2)); 
+					}
+					$str = '';
+					foreach($cell['textbuffer'] AS $t) { $str .= $t[0].' '; }
+					$str = rtrim($str);
+					if (!isset($cell['va']) || $cell['va']=='M') { 
+						$this->y -= ($h-$cell['mih'])/2; //Undo what was added earlier VERTICAL ALIGN
+						if ($angle > 0) { $this->y += (($h-$cell['mih'])/2) + $cell['padding']['T'] + ($cell['mih']-($cell['padding']['T'] + $cell['padding']['B'])); }
+						else if ($angle < 0) { $this->y += (($h-$cell['mih'])/2)+ ($cell['padding']['T'] + ($table['border_spacing_V']/2)); }
+					}
+					elseif (isset($cell['va']) && $cell['va']=='B') { 
+						$this->y -= $h-$cell['mih']; //Undo what was added earlier VERTICAL ALIGN
+						if ($angle > 0) { $this->y += $h-($cell['padding']['B'] + ($table['border_spacing_V']/2)); }
+						else if ($angle < 0) { $this->y += $h-$cell['mih'] + ($cell['padding']['T'] + ($table['border_spacing_V']/2)); }
+					}
+					elseif (isset($cell['va']) && $cell['va']=='T') { 
+						if ($angle > 0) { $this->y += $cell['mih']-($cell['padding']['B'] + ($table['border_spacing_V']/2)); }
+						else if ($angle < 0) { $this->y += ($cell['padding']['T'] + ($table['border_spacing_V']/2)); }
+					}
+					$this->Rotate($angle,$this->x,$this->y);
+					$s_fs = $this->FontSizePt;
+					$s_f = $this->FontFamily;
+					$s_st = $this->FontStyle;
+					if (!empty($cell['textbuffer'][0][3])) { //Font Color
+						$cor = $cell['textbuffer'][0][3];
+						$this->SetTColor($cor);	
+					}
+					$this->SetFont($cell['textbuffer'][0][4],$cell['textbuffer'][0][2],$cellPtSize,true,true);
+
+					$this->magic_reverse_dir($str, $this->directionality, $cell['textbuffer'][0][18]);
+					$this->Text($this->x,$this->y,$str,$cell['textbuffer'][0][18],$cell['textbuffer'][0][8]);	// textvar
+					$this->Rotate(0);
+					$this->SetFont($s_f,$s_st,$s_fs,true,true);
+					$this->SetTColor(0);
+					$this->x = $opx;
+				}
+				else {
+
+					if (!$this->simpleTables){
+					   if ($bord_det) { 
+						$btlw = $bord_det['L']['w']; 
+						$btrw = $bord_det['R']['w']; 
+						$bttw = $bord_det['T']['w']; 
+					   }
+					   else { 
+						$btlw = 0; 
+						$btrw = 0; 
+						$bttw = 0; 
+					   }
+					   if ($table['borders_separate']) {
+						$xadj = $btlw + $cell['padding']['L'] +($table['border_spacing_H']/2);
+						$wadj = $btlw + $btrw + $cell['padding']['L'] +$cell['padding']['R'] + $table['border_spacing_H'];
+						$yadj = $bttw + $cell['padding']['T'] + ($table['border_spacing_H']/2);
+					   }
+					   else {
+						$xadj = $btlw/2 + $cell['padding']['L'];
+						$wadj = ($btlw + $btrw)/2 + $cell['padding']['L'] + $cell['padding']['R'];
+						$yadj = $bttw/2 + $cell['padding']['T'];
+					   }
+					}
+					else if ($this->simpleTables){
+					   if ($table['borders_separate']) {	// NB twice border width
+						$xadj = $table['simple']['border_details']['L']['w'] + $cell['padding']['L'] +($table['border_spacing_H']/2);
+						$wadj = $table['simple']['border_details']['L']['w'] + $table['simple']['border_details']['R']['w'] + $cell['padding']['L'] +$cell['padding']['R'] + $table['border_spacing_H'];
+						$yadj = $table['simple']['border_details']['T']['w'] + $cell['padding']['T'] + ($table['border_spacing_H']/2);
+					   }
+					   else {
+						$xadj = $table['simple']['border_details']['L']['w']/2 + $cell['padding']['L'];
+						$wadj = ($table['simple']['border_details']['L']['w'] + $table['simple']['border_details']['R']['w'])/2 + $cell['padding']['L'] + $cell['padding']['R'];
+						$yadj = $table['simple']['border_details']['T']['w']/2 + $cell['padding']['T'];
+					   }
+					}
+					$this->decimal_offset = 0;
+					if(substr($cell['a'],0,1) == 'D') {
+						if (isset($cell['colspan']) && $cell['colspan'] > 1) { $this->cellTextAlign = $c['a'] = substr($cell['a'],2,1); }
+						else {
+							$smax = $table['decimal_align'][$j]['maxs0'];
+							$d_content = $table['decimal_align'][$j]['maxs0'] + $table['decimal_align'][$j]['maxs1'];
+							$this->decimal_offset = $smax;
+							$extra = ($w - $d_content - $wadj);
+							if ($extra > 0) {
+								if(substr($cell['a'],2,1) == 'R') { $this->decimal_offset += $extra; }
+								else if(substr($cell['a'],2,1) == 'C') { $this->decimal_offset += ($extra)/2; }
+							}
+						}
+					}
+					$this->divwidth=$w-$wadj;
+					if ($this->divwidth == 0) { $this->divwidth = 0.0001; }
+					$this->x += $xadj;
+					$this->y += $yadj;
+					$this->printbuffer($cell['textbuffer'],'',true, false, $cell['direction']);
+				}
+				$this->y = $opy;
+			}
+
+/*-- BACKGROUNDS --*/
+			if (!$this->ColActive) {
+	  		  if (isset($table['trgradients'][$i]) && ($j==0 || $table['borders_separate'])) {
+				$g = $this->grad->parseBackgroundGradient($table['trgradients'][$i]);
+				if ($g) {
+					$gx = $x0;
+					$gy = $y;
+					$gh = $h;
+					$gw = $table['w'] - ($table['max_cell_border_width']['L']/2) - ($table['max_cell_border_width']['R']/2) - $table['margin']['L'] - $table['margin']['R'];
+					if ($table['borders_separate']) { 
+						$gw -= ($table['padding']['L'] + $table['border_details']['L']['w'] + $table['padding']['R'] + $table['border_details']['R']['w'] + $table['border_spacing_H']); 
+ 						$clx = $x+ ($table['border_spacing_H']/2);
+						$cly = $y+ ($table['border_spacing_V']/2);
+						$clw = $w- $table['border_spacing_H'];
+						$clh = $h- $table['border_spacing_V'];
+						// Set clipping path
+						$s = $this->_setClippingPath($clx, $cly, $clw, $clh); // mPDF 6
+						$this->tableBackgrounds[$level*9+4][] = array('gradient'=>true, 'x'=>$gx + ($table['border_spacing_H']/2), 'y'=>$gy + ($table['border_spacing_V']/2), 'w'=>$gw - $table['border_spacing_V'], 'h'=>$gh - $table['border_spacing_H'], 'gradtype'=>$g['type'], 'stops'=>$g['stops'], 'colorspace'=>$g['colorspace'], 'coords'=>$g['coords'], 'extend'=>$g['extend'], 'clippath'=>$s);
+					}
+					else {
+						$this->tableBackgrounds[$level*9+4][] = array('gradient'=>true, 'x'=>$gx, 'y'=>$gy, 'w'=>$gw, 'h'=>$gh, 'gradtype'=>$g['type'], 'stops'=>$g['stops'], 'colorspace'=>$g['colorspace'], 'coords'=>$g['coords'], 'extend'=>$g['extend'], 'clippath'=>'');
+					}
+				}
+			    }
+			    if (isset($table['trbackground-images'][$i]) && ($j==0 || $table['borders_separate'])) {
+			    if (isset($table['trbackground-images'][$i]['gradient']) && preg_match('/(-moz-)*(repeating-)*(linear|radial)-gradient/', $table['trbackground-images'][$i]['gradient'] )) {
+				$g = $this->grad->parseMozGradient( $table['trbackground-images'][$i]['gradient'] );
+				if ($g) {
+					$gx = $x0;
+					$gy = $y;
+					$gh = $h;
+					$gw = $table['w'] - ($table['max_cell_border_width']['L']/2) - ($table['max_cell_border_width']['R']/2) - $table['margin']['L'] - $table['margin']['R'];
+					if ($table['borders_separate']) { 
+						$gw -= ($table['padding']['L'] + $table['border_details']['L']['w'] + $table['padding']['R'] + $table['border_details']['R']['w'] + $table['border_spacing_H']); 
+ 						$clx = $x+ ($table['border_spacing_H']/2);
+						$cly = $y+ ($table['border_spacing_V']/2);
+						$clw = $w- $table['border_spacing_H'];
+						$clh = $h- $table['border_spacing_V'];
+						// Set clipping path
+						$s = $this->_setClippingPath($clx, $cly, $clw, $clh); // mPDF 6
+						$this->tableBackgrounds[$level*9+4][] = array('gradient'=>true, 'x'=>$gx + ($table['border_spacing_H']/2), 'y'=>$gy + ($table['border_spacing_V']/2), 'w'=>$gw - $table['border_spacing_V'], 'h'=>$gh - $table['border_spacing_H'], 'gradtype'=>$g['type'], 'stops'=>$g['stops'], 'colorspace'=>$g['colorspace'], 'coords'=>$g['coords'], 'extend'=>$g['extend'], 'clippath'=>$s);
+					}
+					else {
+						$this->tableBackgrounds[$level*9+4][] = array('gradient'=>true, 'x'=>$gx, 'y'=>$gy, 'w'=>$gw, 'h'=>$gh, 'gradtype'=>$g['type'], 'stops'=>$g['stops'], 'colorspace'=>$g['colorspace'], 'coords'=>$g['coords'], 'extend'=>$g['extend'], 'clippath'=>'');
+					}
+				}
+			    }
+			    else {
+				$image_id = $table['trbackground-images'][$i]['image_id'];
+				$orig_w = $table['trbackground-images'][$i]['orig_w'];
+				$orig_h = $table['trbackground-images'][$i]['orig_h'];
+				$x_pos = $table['trbackground-images'][$i]['x_pos'];
+				$y_pos = $table['trbackground-images'][$i]['y_pos'];
+				$x_repeat = $table['trbackground-images'][$i]['x_repeat'];
+				$y_repeat = $table['trbackground-images'][$i]['y_repeat'];
+				$resize = $table['trbackground-images'][$i]['resize'];
+				$opacity = $table['trbackground-images'][$i]['opacity'];
+				$itype = $table['trbackground-images'][$i]['itype'];
+				$clippath = '';
+				$gx = $x0;
+				$gy = $y;
+				$gh = $h;
+				$gw = $table['w'] - ($table['max_cell_border_width']['L']/2) - ($table['max_cell_border_width']['R']/2) - $table['margin']['L'] - $table['margin']['R'];
+				if ($table['borders_separate']) { 
+					$gw -= ($table['padding']['L'] + $table['border_details']['L']['w'] + $table['padding']['R'] + $table['border_details']['R']['w'] + $table['border_spacing_H']); 
+ 					$clx = $x + ($table['border_spacing_H']/2);
+					$cly = $y + ($table['border_spacing_V']/2);
+					$clw = $w - $table['border_spacing_H'];
+					$clh = $h - $table['border_spacing_V'];
+					// Set clipping path
+					$s = $this->_setClippingPath($clx, $cly, $clw, $clh); // mPDF 6
+					$this->tableBackgrounds[$level*9+5][] = array('x'=>$gx + ($table['border_spacing_H']/2), 'y'=>$gy + ($table['border_spacing_V']/2), 'w'=>$gw - $table['border_spacing_V'], 'h'=>$gh - $table['border_spacing_H'], 'image_id'=>$image_id, 'orig_w'=>$orig_w, 'orig_h'=>$orig_h, 'x_pos'=>$x_pos, 'y_pos'=>$y_pos, 'x_repeat'=>$x_repeat, 'y_repeat'=>$y_repeat, 'clippath'=>$s, 'resize'=>$resize, 'opacity'=>$opacity, 'itype'=>$itype);
+				}
+				else {
+					$this->tableBackgrounds[$level*9+5][] = array('x'=>$gx, 'y'=>$gy, 'w'=>$gw, 'h'=>$gh, 'image_id'=>$image_id, 'orig_w'=>$orig_w, 'orig_h'=>$orig_h, 'x_pos'=>$x_pos, 'y_pos'=>$y_pos, 'x_repeat'=>$x_repeat, 'y_repeat'=>$y_repeat, 'clippath'=>'', 'resize'=>$resize, 'opacity'=>$opacity, 'itype'=>$itype);
+				}
+			    }
+			   }
+			}
+
+/*-- END BACKGROUNDS --*/
+
+			// TABLE BORDER - if separate
+			if (($table['borders_separate'] || ($this->simpleTables && !$table['simple']['border'])) && $table['border']) { 
+			   $halfspaceL = $table['padding']['L'] + ($table['border_spacing_H']/2);
+			   $halfspaceR = $table['padding']['R'] + ($table['border_spacing_H']/2);
+			   $halfspaceT = $table['padding']['T'] + ($table['border_spacing_V']/2);
+			   $halfspaceB = $table['padding']['B'] + ($table['border_spacing_V']/2);
+			   $tbx = $x;
+			   $tby = $y;
+			   $tbw = $w;
+			   $tbh = $h;
+			   $tab_bord = 0;
+			   
+			   $corner = '';
+ 			   if ($i == 0) {		// Top
+				$tby -= $halfspaceT + ($table['border_details']['T']['w']/2);
+				$tbh += $halfspaceT + ($table['border_details']['T']['w']/2);
+				$this->setBorder($tab_bord , _BORDER_TOP); 
+				$corner .= 'T';
+			   }
+			   if ($i == ($numrows-1) || (isset($cell['rowspan']) && ($i+$cell['rowspan']) == $numrows)) {	// Bottom
+				$tbh += $halfspaceB + ($table['border_details']['B']['w']/2);
+				$this->setBorder($tab_bord , _BORDER_BOTTOM); 
+				$corner .= 'B';
+			   }
+			   if ($j == 0) {		// Left
+				$tbx -= $halfspaceL + ($table['border_details']['L']['w']/2);
+				$tbw += $halfspaceL + ($table['border_details']['L']['w']/2);
+				$this->setBorder($tab_bord , _BORDER_LEFT); 
+				$corner .= 'L';
+			   }
+			   if ($j == ($numcols-1) || (isset($cell['colspan']) && ($j+$cell['colspan']) == $numcols)) {	// Right
+				$tbw += $halfspaceR + ($table['border_details']['R']['w']/2);
+				$this->setBorder($tab_bord , _BORDER_RIGHT); 
+				$corner .= 'R';
+			   }
+			   $this->_tableRect($tbx, $tby, $tbw, $tbh, $tab_bord , $table['border_details'], false, $table['borders_separate'], 'table', $corner, $table['border_spacing_V'], $table['border_spacing_H'] );
+			}
+
+			unset($cell );
+			//Reset values
+			$this->Reset();
+
+		}//end of (if isset(cells)...)
+	  }// end of columns
+
+	  $newpagestarted = false;
+	  $this->tabletheadjustfinished = false;
+
+/*-- COLUMNS --*/
+	  if ($this->ColActive) {
+		if (!$this->table_keep_together && $i < $numrows-1 && $level==1) { $this->breakpoints[$this->CurrCol][] = $y + $h; }	// mPDF 6
+		if (count($this->cellBorderBuffer)) { $this->printcellbuffer(); }
+	  }
+/*-- END COLUMNS --*/
+
+	  if ($i == $numrows-1) { $this->y = $y + $h; } //last row jump (update this->y position)
+	  if ($this->table_rotate && $level==1) {
+		$this->tbrot_h += $h;
+	  }
+
+
+
+	}// end of rows
+
+	if ($this->progressBar) { $this->UpdateProgressBar(7,70,' '); }	// *PROGRESS-BAR*
+
+	if (count($this->cellBorderBuffer)) { $this->printcellbuffer(); }
+
+ 
+	if ($this->tableClipPath ) { $this->_out("Q"); }
+	$this->tableClipPath = '';
+
+	// Advance down page by half width of bottom border
+ 	if ($table['borders_separate']) { $this->y += $table['padding']['B'] + $table['border_details']['B']['w'] + $table['border_spacing_V']/2; }
+	else { $this->y += $table['max_cell_border_width']['B']/2; }
+
+	if ($table['borders_separate'] && $level==1) { $this->tbrot_h += $table['margin']['B'] + $table['padding']['B'] + $table['border_details']['B']['w'] + $table['border_spacing_V']/2; }
+	else if ($level==1) { $this->tbrot_h += $table['margin']['B'] + $table['max_cell_border_width']['B']/2; }
+
+	$bx = $x0;
+	$by = $y0;
+	if ($table['borders_separate']) { 
+		$bx -= ($table['padding']['L'] + $table['border_details']['L']['w'] + $table['border_spacing_H']/2); 
+		if ($tablestartpageno != $this->page) {	// IF broken across page
+			$by += $table['max_cell_border_width']['T']/2;
+			if (empty($tableheader)) { $by -= ($table['border_spacing_V']/2); }
+		}
+		else if ($split && $startrow > 0 && empty($tableheader)) { 
+			$by -= ($table['border_spacing_V']/2); 
+		}
+		else {
+			$by -= ($table['padding']['T'] + $table['border_details']['T']['w'] + $table['border_spacing_V']/2); 
+		}
+	}
+	else if ($tablestartpageno != $this->page && !empty($tableheader)) { $by += $maxbwtop /2; }	
+	$by -= $tableheaderadj;
+	$bh = $this->y - $by;
+	if (!$table['borders_separate']) { $bh -= $table['max_cell_border_width']['B']/2; }
+
+	if ($split) {
+		$bw = 0;
+		$finalSpread = true;
+		for($t=$startcol; $t<$numcols; $t++) {
+			if ($table['colPg'][$t] == $splitpg) { $bw += $table['wc'][$t]; }
+			if ($table['colPg'][$t] > $splitpg) { $finalSpread = false; break; }
+		}
+		if ($startcol==0) { $firstSpread = true; }
+		else { $firstSpread = false; }
+		if ($table['borders_separate']) {
+			$bw += $table['border_spacing_H']; 
+			if ($firstSpread) { 
+				$bw += $table['padding']['L'] + $table['border_details']['L']['w']; 
+			}
+			else {
+				$bx += ($table['padding']['L'] + $table['border_details']['L']['w']); 
+			}
+			if ($finalSpread) { 
+				$bw += $table['padding']['R'] + $table['border_details']['R']['w']; 
+			}
+		}
+	}
+	else {
+		$bw = $table['w'] - ($table['max_cell_border_width']['L']/2) - ($table['max_cell_border_width']['R']/2) - $table['margin']['L'] - $table['margin']['R'];
+	}
+
+	if (!$this->ColActive) {
+		if (isset($table['bgcolor'][-1])) { 
+  			$color = $this->ConvertColor($table['bgcolor'][-1]);
+  			if ($color) {
+			   $this->tableBackgrounds[$level*9][] = array('gradient'=>false, 'x'=>$bx, 'y'=>$by, 'w'=>$bw, 'h'=>$bh, 'col'=>$color);
+			}
+		}
+
+/*-- BACKGROUNDS --*/
+		if (isset($table['gradient'])) { 
+			$g = $this->grad->parseBackgroundGradient($table['gradient']);
+			if ($g) {
+			   $this->tableBackgrounds[$level*9+1][] = array('gradient'=>true, 'x'=>$bx, 'y'=>$by, 'w'=>$bw, 'h'=>$bh, 'gradtype'=>$g['type'], 'stops'=>$g['stops'], 'colorspace'=>$g['colorspace'], 'coords'=>$g['coords'], 'extend'=>$g['extend'], 'clippath'=>'');
+			}
+		}
+
+		if (isset($table['background-image'])) { 
+		   if (isset($table['background-image']['gradient']) && $table['background-image']['gradient'] && preg_match('/(-moz-)*(repeating-)*(linear|radial)-gradient/', $table['background-image']['gradient'] )) {
+			$g = $this->grad->parseMozGradient( $table['background-image']['gradient'] );
+			if ($g) {
+			   $this->tableBackgrounds[$level*9+1][] = array('gradient'=>true, 'x'=>$bx, 'y'=>$by, 'w'=>$bw, 'h'=>$bh, 'gradtype'=>$g['type'], 'stops'=>$g['stops'], 'colorspace'=>$g['colorspace'], 'coords'=>$g['coords'], 'extend'=>$g['extend'], 'clippath'=>'');
+			}
+		   }
+		   else { 
+			$image_id = $table['background-image']['image_id'];
+			$orig_w = $table['background-image']['orig_w'];
+			$orig_h = $table['background-image']['orig_h'];
+			$x_pos = $table['background-image']['x_pos'];
+			$y_pos = $table['background-image']['y_pos'];
+			$x_repeat = $table['background-image']['x_repeat'];
+			$y_repeat = $table['background-image']['y_repeat'];
+			$resize = $table['background-image']['resize'];
+			$opacity = $table['background-image']['opacity'];
+			$itype = $table['background-image']['itype'];
+			$this->tableBackgrounds[$level*9+2][] = array('x'=>$bx, 'y'=>$by, 'w'=>$bw, 'h'=>$bh, 'image_id'=>$image_id, 'orig_w'=>$orig_w, 'orig_h'=>$orig_h, 'x_pos'=>$x_pos, 'y_pos'=>$y_pos, 'x_repeat'=>$x_repeat, 'y_repeat'=>$y_repeat, 'clippath'=>'', 'resize'=>$resize, 'opacity'=>$opacity, 'itype'=>$itype);
+		   }
+		}
+/*-- END BACKGROUNDS --*/
+	}
+
+	if ($this->tableBackgrounds && $level == 1) {
+	   $s = $this->PrintTableBackgrounds();
+	   if ($this->table_rotate && !$this->processingHeader && !$this->processingFooter) {
+		$this->tablebuffer = preg_replace('/(___TABLE___BACKGROUNDS'.$this->uniqstr.')/', '\\1'."\n".$s."\n", $this->tablebuffer);
+		if ($level == 1) { $this->tablebuffer = preg_replace('/(___TABLE___BACKGROUNDS'.$this->uniqstr.')/', " ", $this->tablebuffer); }
+	   }
+	   else if ($this->bufferoutput) {
+		$this->headerbuffer = preg_replace('/(___TABLE___BACKGROUNDS'.$this->uniqstr.')/', '\\1'."\n".$s."\n", $this->headerbuffer);
+		if ($level == 1) { $this->headerbuffer = preg_replace('/(___TABLE___BACKGROUNDS'.$this->uniqstr.')/', " ", $this->headerbuffer ); }
+	   }
+	   else {
+		$this->pages[$this->page] = preg_replace('/(___TABLE___BACKGROUNDS'.$this->uniqstr.')/', '\\1'."\n".$s."\n", $this->pages[$this->page]);
+		if ($level == 1) { $this->pages[$this->page] = preg_replace('/(___TABLE___BACKGROUNDS'.$this->uniqstr.')/', " ", $this->pages[$this->page]); }
+	   }
+	   $this->tableBackgrounds = array();
+	}
+
+
+	// TABLE BOTTOM MARGIN
+	if ($table['margin']['B']) {
+	  if (!$this->table_rotate && $level==1) {
+		$this->DivLn($table['margin']['B'],$this->blklvl,true); 	// collapsible
+	  }
+	  else {
+		$this->y += ($table['margin']['B']);
+	  }
+	}
+
+	if ($this->ColActive && $level==1) { $this->breakpoints[$this->CurrCol][] = $this->y; }	// *COLUMNS*
+
+	if ($split) { 
+		// Are there more columns to print on a next page?
+		if ($lastCol < $numcols-1) {
+			$splitpg++;
+			$startcol = $lastCol + 1;
+			return array(false, $startrow, $startcol, $splitpg, $returny, $y0);
+		}
+		else {
+			return array(true,0,0,0,false,false);
+		}
+	}
+
+}//END OF FUNCTION _tableWrite()
+
+
+/////////////////////////END OF TABLE CODE//////////////////////////////////
+/*-- END TABLES --*/
+
+function _putextgstates() {
+	for ($i = 1; $i <= count($this->extgstates); $i++) {
+            $this->_newobj();
+            $this->extgstates[$i]['n'] = $this->n;
+            $this->_out('<</Type /ExtGState');
+            foreach ($this->extgstates[$i]['parms'] as $k=>$v)
+                $this->_out('/'.$k.' '.$v);
+            $this->_out('>>');
+            $this->_out('endobj');
+	}
+}
+
+function _putocg() {
+	if ($this->hasOC) {
+		$this->_newobj();
+		$this->n_ocg_print=$this->n;
+		$this->_out('<</Type /OCG /Name '.$this->_textstring('Print only'));
+		$this->_out('/Usage <</Print <</PrintState /ON>> /View <</ViewState /OFF>>>>>>');
+		$this->_out('endobj');
+		$this->_newobj();
+		$this->n_ocg_view=$this->n;
+		$this->_out('<</Type /OCG /Name '.$this->_textstring('Screen only'));
+		$this->_out('/Usage <</Print <</PrintState /OFF>> /View <</ViewState /ON>>>>>>');
+		$this->_out('endobj');
+		$this->_newobj();
+		$this->n_ocg_hidden=$this->n;
+		$this->_out('<</Type /OCG /Name '.$this->_textstring('Hidden'));
+		$this->_out('/Usage <</Print <</PrintState /OFF>> /View <</ViewState /OFF>>>>>>');
+		$this->_out('endobj');
+	}
+	if (count($this->layers)) {
+		ksort($this->layers);
+		foreach($this->layers as $id=>$layer) {
+			$this->_newobj();
+			$this->layers[$id]['n'] = $this->n;
+			if (isset($this->layerDetails[$id]['name']) && $this->layerDetails[$id]['name']) {
+				$name = $this->layerDetails[$id]['name'];
+			}
+			else { $name = $layer['name']; }
+			$this->_out('<</Type /OCG /Name '.$this->_UTF16BEtextstring($name).'>>');
+			$this->_out('endobj');
+		}
+	}
+}
+
+
+/*-- IMPORTS --*/
+
+	// from mPDFI
+	function _putimportedobjects() {
+		if (is_array($this->parsers) && count($this->parsers) > 0) {
+			foreach($this->parsers AS $filename => $p) {
+				$this->current_parser =& $this->parsers[$filename];
+				if (is_array($this->_obj_stack[$filename])) {
+					while($n = key($this->_obj_stack[$filename])) {
+						$nObj = $this->current_parser->pdf_resolve_object($this->current_parser->c,$this->_obj_stack[$filename][$n][1]);
+						$this->_newobj($this->_obj_stack[$filename][$n][0]);
+						if ($nObj[0] == PDF_TYPE_STREAM) {
+							$this->pdf_write_value($nObj);
+						} 
+						else {
+							$this->pdf_write_value($nObj[1]);
+						}
+						$this->_out('endobj');
+						$this->_obj_stack[$filename][$n] = null; // free memory
+						unset($this->_obj_stack[$filename][$n]);
+						reset($this->_obj_stack[$filename]);
+					}
+				}
+			}
+		}
+	}
+
+
+	function _putformxobjects() {
+		$filter=($this->compress) ? '/Filter /FlateDecode ' : '';
+		reset($this->tpls);
+		foreach($this->tpls AS $tplidx => $tpl) {
+			$p=($this->compress) ? gzcompress($tpl['buffer']) : $tpl['buffer'];
+			$this->_newobj();
+			$this->tpls[$tplidx]['n'] = $this->n;
+			$this->_out('<<'.$filter.'/Type /XObject');
+			$this->_out('/Subtype /Form');
+			$this->_out('/FormType 1');
+			// Left/Bottom/Right/Top
+			$this->_out(sprintf('/BBox [%.2F %.2F %.2F %.2F]',
+				$tpl['box']['x']*_MPDFK,
+				$tpl['box']['y']*_MPDFK,
+				($tpl['box']['x'] + $tpl['box']['w'])*_MPDFK,
+				($tpl['box']['y'] + $tpl['box']['h'])*_MPDFK  )
+			);
+
+
+			if (isset($tpl['box']))
+				$this->_out(sprintf('/Matrix [1 0 0 1 %.5F %.5F]',-$tpl['box']['x']*_MPDFK, -$tpl['box']['y']*_MPDFK));
+			$this->_out('/Resources ');
+
+			if (isset($tpl['resources'])) {
+				$this->current_parser =& $tpl['parser'];
+				$this->pdf_write_value($tpl['resources']);
+			} else {
+				$this->_out('<</ProcSet [/PDF /Text /ImageB /ImageC /ImageI]');
+					if (isset($this->_res['tpl'][$tplidx]['fonts']) && count($this->_res['tpl'][$tplidx]['fonts'])) {
+						$this->_out('/Font <<');
+						foreach($this->_res['tpl'][$tplidx]['fonts'] as $font)
+							$this->_out('/F'.$font['i'].' '.$font['n'].' 0 R');
+						$this->_out('>>');
+				}
+					if(isset($this->_res['tpl'][$tplidx]['images']) && count($this->_res['tpl'][$tplidx]['images']) || 
+					   isset($this->_res['tpl'][$tplidx]['tpls']) && count($this->_res['tpl'][$tplidx]['tpls']))
+					{
+						$this->_out('/XObject <<');
+						if (isset($this->_res['tpl'][$tplidx]['images']) && count($this->_res['tpl'][$tplidx]['images'])) {
+							foreach($this->_res['tpl'][$tplidx]['images'] as $image)
+								$this->_out('/I'.$image['i'].' '.$image['n'].' 0 R');
+						}
+						if (isset($this->_res['tpl'][$tplidx]['tpls']) && count($this->_res['tpl'][$tplidx]['tpls'])) {
+							foreach($this->_res['tpl'][$tplidx]['tpls'] as $i => $itpl)
+								$this->_out($this->tplprefix.$i.' '.$itpl['n'].' 0 R');
+						}
+						$this->_out('>>');
+					}
+					$this->_out('>>');
+			}
+
+			$this->_out('/Length '.strlen($p).' >>');
+			$this->_putstream($p);
+			$this->_out('endobj');
+		}
+	}
+
+/*-- END IMPORTS --*/
+
+
+function _putpatterns() {
+	for ($i = 1; $i <= count($this->patterns); $i++) {
+		$x = $this->patterns[$i]['x'];
+		$y = $this->patterns[$i]['y']; 
+		$w = $this->patterns[$i]['w'];
+		$h = $this->patterns[$i]['h']; 
+		$pgh = $this->patterns[$i]['pgh']; 
+		$orig_w = $this->patterns[$i]['orig_w'];
+		$orig_h = $this->patterns[$i]['orig_h']; 
+		$image_id = $this->patterns[$i]['image_id'];
+		$itype = $this->patterns[$i]['itype'];
+		if (isset($this->patterns[$i]['bpa'])) { $bpa = $this->patterns[$i]['bpa']; }	// background positioning area
+		else { $bpa = array(); }
+
+		if ($this->patterns[$i]['x_repeat']) { $x_repeat = true; } 
+		else { $x_repeat = false; }
+		if ($this->patterns[$i]['y_repeat']) { $y_repeat = true; }
+		else { $y_repeat = false; }
+		$x_pos = $this->patterns[$i]['x_pos'];
+		if (stristr($x_pos ,'%') ) { 
+			$x_pos += 0; 
+			$x_pos /= 100; 
+			if (isset($bpa['w']) && $bpa['w']) $x_pos = ($bpa['w'] * $x_pos) - ($orig_w/_MPDFK * $x_pos);
+			else $x_pos = ($w * $x_pos) - ($orig_w/_MPDFK * $x_pos);
+		}
+		$y_pos = $this->patterns[$i]['y_pos'];
+		if (stristr($y_pos ,'%') ) { 
+			$y_pos += 0; 
+			$y_pos /= 100; 
+			if (isset($bpa['h']) && $bpa['h']) $y_pos = ($bpa['h'] * $y_pos) - ($orig_h/_MPDFK * $y_pos);
+			else $y_pos = ($h * $y_pos) - ($orig_h/_MPDFK * $y_pos);
+		}
+		if (isset($bpa['x']) && $bpa['x']) $adj_x = ($x_pos + $bpa['x']) *_MPDFK;
+		else $adj_x = ($x_pos + $x) *_MPDFK;
+		if (isset($bpa['y']) && $bpa['y']) $adj_y = (($pgh - $y_pos - $bpa['y'])*_MPDFK) - $orig_h ;
+		else $adj_y = (($pgh - $y_pos - $y)*_MPDFK) - $orig_h ;
+		$img_obj = false;
+		if ($itype == 'svg' || $itype == 'wmf') {
+			foreach($this->formobjects AS $fo) {
+				if ($fo['i'] == $image_id) { 
+					$img_obj = $fo['n']; 
+					$fo_w = $fo['w'];
+					$fo_h = -$fo['h'];
+					$wmf_x = $fo['x'];
+					$wmf_y = $fo['y']; 
+					break; 
+				}
+			}
+		}
+		else {
+			foreach($this->images AS $img) {
+				if ($img['i'] == $image_id) { $img_obj = $img['n']; break; }
+			}
+		}
+		if (!$img_obj ) { echo "Problem: Image object not found for background pattern ".$img['i']; exit; }
+
+            $this->_newobj();
+            $this->_out('<</ProcSet [/PDF /Text /ImageB /ImageC /ImageI]');
+		if ($itype == 'svg' || $itype == 'wmf') {
+			$this->_out('/XObject <</FO'.$image_id.' '.$img_obj.' 0 R >>');
+			// ******* ADD ANY ExtGStates, Shading AND Fonts needed for the FormObject
+			// Set in classes/svg array['fo'] = true
+			// Required that _putshaders comes before _putpatterns in _putresources
+			// This adds any resources associated with any FormObject to every Formobject - overkill but works!
+			if (count($this->extgstates)) {
+				$this->_out('/ExtGState <<');
+				foreach($this->extgstates as $k=>$extgstate)
+				   if (isset($extgstate['fo']) && $extgstate['fo']) {
+					if (isset($extgstate['trans']))  $this->_out('/'.$extgstate['trans'].' '.$extgstate['n'].' 0 R');
+					else $this->_out('/GS'.$k.' '.$extgstate['n'].' 0 R');
+				   }
+				$this->_out('>>');
+			}
+/*-- BACKGROUNDS --*/
+			if (isset($this->gradients) AND (count($this->gradients) > 0)) {
+				$this->_out('/Shading <<');
+				foreach ($this->gradients as $id => $grad) {
+				   if (isset($grad['fo']) && $grad['fo']) {
+					$this->_out('/Sh'.$id.' '.$grad['id'].' 0 R');
+				   }
+				}
+				$this->_out('>>');
+			}
+/*-- END BACKGROUNDS --*/
+			$this->_out('/Font <<');
+			foreach($this->fonts as $font) {
+				if (!$font['used'] && $font['type']=='TTF') { continue; }
+				if (isset($font['fo']) && $font['fo']) {
+				   if ($font['type']=='TTF' && ($font['sip'] || $font['smp'])) {
+					foreach($font['n'] AS $k => $fid) {
+						$this->_out('/F'.$font['subsetfontids'][$k].' '.$font['n'][$k].' 0 R');
+					}
+				   }
+				   else { 
+					$this->_out('/F'.$font['i'].' '.$font['n'].' 0 R');
+				   }
+				}
+			}
+			$this->_out('>>');
+		}
+		else {
+            	$this->_out('/XObject <</I'.$image_id.' '.$img_obj.' 0 R >>');
+		}
+            $this->_out('>>');
+            $this->_out('endobj');
+
+		$this->_newobj();
+		$this->patterns[$i]['n'] = $this->n;
+		$this->_out('<< /Type /Pattern /PatternType 1 /PaintType 1 /TilingType 2');
+		$this->_out('/Resources '. ($this->n-1) .' 0 R');
+
+		$this->_out(sprintf('/BBox [0 0 %.3F %.3F]',$orig_w,$orig_h));
+		if ($x_repeat) { $this->_out(sprintf('/XStep %.3F',$orig_w)); }
+		else { $this->_out(sprintf('/XStep %d',99999)); }
+		if ($y_repeat) { $this->_out(sprintf('/YStep %.3F',$orig_h)); }
+		else { $this->_out(sprintf('/YStep %d',99999)); }
+
+		if ($itype == 'svg' || $itype == 'wmf') {
+			$this->_out(sprintf('/Matrix [1 0 0 -1 %.3F %.3F]', $adj_x, ($adj_y+$orig_h)));
+			$s = sprintf("q %.3F 0 0 %.3F %.3F %.3F cm /FO%d Do Q",($orig_w/$fo_w), (-$orig_h/$fo_h), -($orig_w/$fo_w)*$wmf_x, ($orig_w/$fo_w)*$wmf_y, $image_id);
+		}
+		else {
+			$this->_out(sprintf('/Matrix [1 0 0 1 %.3F %.3F]',$adj_x,$adj_y));
+			$s = sprintf("q %.3F 0 0 %.3F 0 0 cm /I%d Do Q",$orig_w,$orig_h,$image_id);
+		}
+
+            if ($this->compress) {
+			$this->_out('/Filter /FlateDecode');
+			$s = gzcompress($s);
+		}
+		$this->_out('/Length '.strlen($s).'>>');
+		$this->_putstream($s);
+		$this->_out('endobj');
+	}
+}
+
+/*-- BACKGROUNDS --*/
+function _putshaders() {
+			$maxid = count($this->gradients); //index for transparency gradients
+			foreach ($this->gradients as $id => $grad) {  
+				if (($grad['type'] == 2 || $grad['type'] == 3) && empty($grad['is_mask'])) {
+					$this->_newobj();
+					$this->_out('<<');
+					$this->_out('/FunctionType 3');
+					$this->_out('/Domain [0 1]');
+					$fn = array();
+					$bd = array();
+					$en = array();
+					for($i=0; $i<(count($grad['stops'])-1); $i++) {
+						$fn[] = ($this->n+1+$i).' 0 R';
+						$en[] = '0 1';
+						if ($i>0) { $bd[] = sprintf('%.3F', $grad['stops'][$i]['offset']); }
+					}
+					$this->_out('/Functions ['.implode(' ',$fn).']');
+					$this->_out('/Bounds ['.implode(' ',$bd).']');
+					$this->_out('/Encode ['.implode(' ',$en).']');
+					$this->_out('>>');
+					$this->_out('endobj');
+					$f1 = $this->n;
+					for($i=0; $i<(count($grad['stops'])-1); $i++) {
+						$this->_newobj();
+						$this->_out('<<');
+						$this->_out('/FunctionType 2');
+						$this->_out('/Domain [0 1]');
+						$this->_out('/C0 ['.$grad['stops'][$i]['col'].']');
+						$this->_out('/C1 ['.$grad['stops'][$i+1]['col'].']');
+						$this->_out('/N 1');
+						$this->_out('>>');
+						$this->_out('endobj');
+					}
+				}
+				if ($grad['type'] == 2 || $grad['type'] == 3) {
+				  if (isset($grad['trans']) && $grad['trans']) {
+					$this->_newobj();
+					$this->_out('<<');
+					$this->_out('/FunctionType 3');
+					$this->_out('/Domain [0 1]');
+					$fn = array();
+					$bd = array();
+					$en = array();
+					for($i=0; $i<(count($grad['stops'])-1); $i++) {
+						$fn[] = ($this->n+1+$i).' 0 R';
+						$en[] = '0 1';
+						if ($i>0) { $bd[] = sprintf('%.3F', $grad['stops'][$i]['offset']); }
+					}
+					$this->_out('/Functions ['.implode(' ',$fn).']');
+					$this->_out('/Bounds ['.implode(' ',$bd).']');
+					$this->_out('/Encode ['.implode(' ',$en).']');
+					$this->_out('>>');
+					$this->_out('endobj');
+					$f2 = $this->n;
+					for($i=0; $i<(count($grad['stops'])-1); $i++) {
+						$this->_newobj();
+						$this->_out('<<');
+						$this->_out('/FunctionType 2');
+						$this->_out('/Domain [0 1]');
+						$this->_out(sprintf('/C0 [%.3F]', $grad['stops'][$i]['opacity']));
+						$this->_out(sprintf('/C1 [%.3F]', $grad['stops'][$i+1]['opacity']));
+						$this->_out('/N 1');
+						$this->_out('>>');
+						$this->_out('endobj');
+					}
+				   }
+				}
+
+				if (empty($grad['is_mask'])) {
+					$this->_newobj();
+					$this->_out('<<');
+					$this->_out('/ShadingType '.$grad['type']);
+					if (isset($grad['colorspace'])) {
+						$this->_out('/ColorSpace /Device'.$grad['colorspace']);		// Can use CMYK if all C0 and C1 above have 4 values
+					} else {
+						$this->_out('/ColorSpace /DeviceRGB');
+					}
+					if ($grad['type'] == 2) {
+						$this->_out(sprintf('/Coords [%.3F %.3F %.3F %.3F]', $grad['coords'][0], $grad['coords'][1], $grad['coords'][2], $grad['coords'][3]));
+						$this->_out('/Function '.$f1.' 0 R');
+						$this->_out('/Extend ['.$grad['extend'][0].' '.$grad['extend'][1].'] ');
+						$this->_out('>>');
+					}
+					else if ($grad['type'] == 3) {
+						//x0, y0, r0, x1, y1, r1
+						//at this this time radius of inner circle is 0
+						$ir = 0;
+						if (isset($grad['coords'][5]) && $grad['coords'][5]) { $ir = $grad['coords'][5]; }
+						$this->_out(sprintf('/Coords [%.3F %.3F %.3F %.3F %.3F %.3F]', $grad['coords'][0], $grad['coords'][1], $ir, $grad['coords'][2], $grad['coords'][3], $grad['coords'][4]));
+						$this->_out('/Function '.$f1.' 0 R');
+						$this->_out('/Extend ['.$grad['extend'][0].' '.$grad['extend'][1].'] ');
+						$this->_out('>>');
+					}
+					else if ($grad['type']==6) {
+						$this->_out('/BitsPerCoordinate 16');
+						$this->_out('/BitsPerComponent 8');
+						if ($grad['colorspace'] == 'CMYK') { $this->_out('/Decode[0 1 0 1 0 1 0 1 0 1 0 1]'); }
+						else if ($grad['colorspace'] == 'Gray') { $this->_out('/Decode[0 1 0 1 0 1]'); }
+						else { $this->_out('/Decode[0 1 0 1 0 1 0 1 0 1]'); }
+						$this->_out('/BitsPerFlag 8');
+						$this->_out('/Length '.strlen($grad['stream']));
+						$this->_out('>>');
+						$this->_putstream($grad['stream']);
+					}
+					$this->_out('endobj');
+				}
+
+				$this->gradients[$id]['id'] = $this->n;
+
+				// set pattern object
+				$this->_newobj();
+				$out = '<< /Type /Pattern /PatternType 2';
+				$out .= ' /Shading '.$this->gradients[$id]['id'].' 0 R';
+				$out .= ' >>';
+				$out .= "\n".'endobj';
+				$this->_out($out);
+
+
+				$this->gradients[$id]['pattern'] = $this->n;
+
+				if (isset($grad['trans']) && $grad['trans']) {
+					// luminosity pattern
+					$transid = $id + $maxid;
+					$this->_newobj();
+					$this->_out('<<');
+					$this->_out('/ShadingType '.$grad['type']);
+					$this->_out('/ColorSpace /DeviceGray');
+					if ($grad['type'] == 2) {
+						$this->_out(sprintf('/Coords [%.3F %.3F %.3F %.3F]', $grad['coords'][0], $grad['coords'][1], $grad['coords'][2], $grad['coords'][3]));
+						$this->_out('/Function '.$f2.' 0 R');
+						$this->_out('/Extend ['.$grad['extend'][0].' '.$grad['extend'][1].'] ');
+						$this->_out('>>');
+					}
+					else if ($grad['type'] == 3) {
+						//x0, y0, r0, x1, y1, r1
+						//at this this time radius of inner circle is 0
+						$ir = 0;
+						if (isset($grad['coords'][5]) && $grad['coords'][5]) { $ir = $grad['coords'][5]; }
+						$this->_out(sprintf('/Coords [%.3F %.3F %.3F %.3F %.3F %.3F]', $grad['coords'][0], $grad['coords'][1], $ir, $grad['coords'][2], $grad['coords'][3], $grad['coords'][4]));
+						$this->_out('/Function '.$f2.' 0 R');
+						$this->_out('/Extend ['.$grad['extend'][0].' '.$grad['extend'][1].'] ');
+						$this->_out('>>');
+					}
+					else if ($grad['type']==6) {
+						$this->_out('/BitsPerCoordinate 16');
+						$this->_out('/BitsPerComponent 8');
+						$this->_out('/Decode[0 1 0 1 0 1]');
+						$this->_out('/BitsPerFlag 8');
+						$this->_out('/Length '.strlen($grad['stream_trans']));
+						$this->_out('>>');
+						$this->_putstream($grad['stream_trans']);
+					}
+					$this->_out('endobj');
+
+					$this->gradients[$transid]['id'] = $this->n;
+					$this->_newobj();
+					$this->_out('<< /Type /Pattern /PatternType 2');
+					$this->_out('/Shading '.$this->gradients[$transid]['id'].' 0 R');
+					$this->_out('>>');
+					$this->_out('endobj');
+					$this->gradients[$transid]['pattern'] = $this->n;
+					$this->_newobj();
+					// Need to extend size of viewing box in case of transformations
+					$str = 'q /a0 gs /Pattern cs /p'.$transid.' scn -'.($this->wPt/2).' -'.($this->hPt/2).' '.(2*$this->wPt).' '.(2*$this->hPt).' re f Q'; 
+					$filter=($this->compress) ? '/Filter /FlateDecode ' : '';
+					$p=($this->compress) ? gzcompress($str) : $str;
+					$this->_out('<< /Type /XObject /Subtype /Form /FormType 1 '.$filter);
+					$this->_out('/Length '.strlen($p));
+					$this->_out('/BBox [-'.($this->wPt/2).' -'.($this->hPt/2).' '.(2*$this->wPt).' '.(2*$this->hPt).']');	
+					$this->_out('/Group << /Type /Group /S /Transparency /CS /DeviceGray >>');
+					$this->_out('/Resources <<');
+					$this->_out('/ExtGState << /a0 << /ca 1 /CA 1 >> >>');
+					$this->_out('/Pattern << /p'.$transid.' '.$this->gradients[$transid]['pattern'].' 0 R >>');
+					$this->_out('>>');
+					$this->_out('>>');
+					$this->_putstream($p);
+					$this->_out('endobj');
+					$this->_newobj();
+					$this->_out('<< /Type /Mask /S /Luminosity /G '.($this->n - 1).' 0 R >>'."\n".'endobj');
+					$this->_newobj();
+					$this->_out('<< /Type /ExtGState /SMask '.($this->n - 1).' 0 R /AIS false >>'."\n".'endobj');
+					if (isset($grad['fo']) && $grad['fo']) { $this->extgstates[] = array('n' => $this->n, 'trans' => 'TGS'.$id, 'fo'=>true); }
+					else { $this->extgstates[] = array('n' => $this->n, 'trans' => 'TGS'.$id); }
+				}
+			}
+}
+/*-- END BACKGROUNDS --*/
+
+function _putspotcolors() {
+	foreach($this->spotColors as $name=>$color) {
+		$this->_newobj();
+		$this->_out('[/Separation /'.str_replace(' ','#20',$name));
+		$this->_out('/DeviceCMYK <<');
+		$this->_out('/Range [0 1 0 1 0 1 0 1] /C0 [0 0 0 0] ');
+		$this->_out(sprintf('/C1 [%.3F %.3F %.3F %.3F] ',$color['c']/100,$color['m']/100,$color['y']/100,$color['k']/100));
+		$this->_out('/FunctionType 2 /Domain [0 1] /N 1>>]');
+		$this->_out('endobj');
+		$this->spotColors[$name]['n']=$this->n;
+	}
+}
+
+
+function _putresources() {
+	if ($this->hasOC || count($this->layers))
+		$this->_putocg();
+	$this->_putextgstates();
+	$this->_putspotcolors();
+	if ($this->progressBar) { $this->UpdateProgressBar(2,'40','Compiling Fonts'); }	// *PROGRESS-BAR*
+	$this->_putfonts();
+	if ($this->progressBar) { $this->UpdateProgressBar(2,'50','Compiling Images'); }	// *PROGRESS-BAR*
+	$this->_putimages();
+	$this->_putformobjects();	// *IMAGES-CORE*
+
+/*-- IMPORTS --*/
+	if ($this->enableImports) {
+		$this->_putformxobjects();
+		$this->_putimportedobjects();
+	}
+/*-- END IMPORTS --*/
+
+/*-- BACKGROUNDS --*/
+	$this->_putshaders();
+	$this->_putpatterns();
+/*-- END BACKGROUNDS --*/
+
+
+	//Resource dictionary
+	$this->offsets[2]=strlen($this->buffer);
+	$this->_out('2 0 obj');
+	$this->_out('<</ProcSet [/PDF /Text /ImageB /ImageC /ImageI]');
+
+	$this->_out('/Font <<');
+	foreach($this->fonts as $font) {
+		if (isset($font['type']) && $font['type']=='TTF' && !$font['used']) { continue; }
+		if (isset($font['type']) && $font['type']=='TTF' && ($font['sip'] || $font['smp'])) {
+			foreach($font['n'] AS $k => $fid) {
+				$this->_out('/F'.$font['subsetfontids'][$k].' '.$font['n'][$k].' 0 R');
+			}
+		}
+		else { 
+			$this->_out('/F'.$font['i'].' '.$font['n'].' 0 R');
+		}
+	}
+	$this->_out('>>');
+
+	if (count($this->spotColors)) {
+		$this->_out('/ColorSpace <<');
+		foreach($this->spotColors as $color)
+			$this->_out('/CS'.$color['i'].' '.$color['n'].' 0 R');
+		$this->_out('>>');
+	}
+
+	if (count($this->extgstates)) {
+		$this->_out('/ExtGState <<');
+		foreach($this->extgstates as $k=>$extgstate)
+			if (isset($extgstate['trans']))  $this->_out('/'.$extgstate['trans'].' '.$extgstate['n'].' 0 R');
+			else $this->_out('/GS'.$k.' '.$extgstate['n'].' 0 R');
+		$this->_out('>>');
+	}
+
+/*-- BACKGROUNDS --*/
+	if ((isset($this->gradients) AND (count($this->gradients) > 0)) || ($this->enableImports && count($this->tpls))) {	// mPDF 5.7.3
+		$this->_out('/Shading <<');
+		foreach ($this->gradients as $id => $grad) {
+			$this->_out('/Sh'.$id.' '.$grad['id'].' 0 R');
+		}
+		// mPDF 5.7.3
+		// If a shading dictionary is in an object (tpl) imported from another PDF, it needs to be included
+		// in the document resources, as well as the object resources
+		// Otherwise get an error in some PDF viewers
+		if ($this->enableImports && count($this->tpls)) {
+			foreach($this->tpls as $tplidx => $tpl) {
+				if (isset($tpl['resources'])) {
+					$this->current_parser =& $tpl['parser'];
+					reset ($tpl['resources'][1]);
+					while (list($k, $v) = each($tpl['resources'][1])) {
+						if ($k == '/Shading') {
+							while (list($k2, $v2) = each($v[1])) {
+								$this->_out($k2 . " ",false);
+								$this->pdf_write_value($v2);
+							}
+						}
+					}
+
+
+				}
+			}
+		}
+
+		$this->_out('>>');
+/*
+		// ??? Not needed !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+		$this->_out('/Pattern <<');
+		foreach ($this->gradients as $id => $grad) {
+			$this->_out('/P'.$id.' '.$grad['pattern'].' 0 R');
+		}
+		$this->_out('>>');
+*/
+	}
+/*-- END BACKGROUNDS --*/
+
+
+	if(count($this->images) || count($this->formobjects) || ($this->enableImports && count($this->tpls))) {
+		$this->_out('/XObject <<');
+		foreach($this->images as $image)
+			$this->_out('/I'.$image['i'].' '.$image['n'].' 0 R');
+            foreach($this->formobjects as $formobject)
+                $this->_out('/FO'.$formobject['i'].' '.$formobject['n'].' 0 R');
+/*-- IMPORTS --*/
+		if ($this->enableImports && count($this->tpls)) {
+			foreach($this->tpls as $tplidx => $tpl) {
+				$this->_out($this->tplprefix.$tplidx.' '.$tpl['n'].' 0 R');
+			}
+		}
+/*-- END IMPORTS --*/
+		$this->_out('>>');
+	}
+
+/*-- BACKGROUNDS --*/
+
+	if (count($this->patterns)) {
+		$this->_out('/Pattern <<');
+		foreach($this->patterns as $k=>$patterns)
+			$this->_out('/P'.$k.' '.$patterns['n'].' 0 R');
+		$this->_out('>>');
+	}
+/*-- END BACKGROUNDS --*/
+
+	if ($this->hasOC || count($this->layers)) { 
+		$this->_out('/Properties <<');
+		if ($this->hasOC) { 
+			$this->_out('/OC1 '.$this->n_ocg_print.' 0 R /OC2 '.$this->n_ocg_view.' 0 R /OC3 '.$this->n_ocg_hidden.' 0 R ');
+		}
+		if (count($this->layers)) {
+			foreach($this->layers as $id=>$layer)
+				$this->_out('/ZI'.$id.' '.$layer['n'].' 0 R');
+		}
+		$this->_out('>>');
+	}
+
+	$this->_out('>>');
+	$this->_out('endobj');	// end resource dictionary
+
+	$this->_putbookmarks(); 	// *BOOKMARKS*
+
+	if (isset($this->js) && $this->js) {
+		$this->_putjavascript();
+	}
+
+/*-- ENCRYPTION --*/
+	if ($this->encrypted) {
+		$this->_newobj();
+		$this->enc_obj_id = $this->n;
+		$this->_out('<<');
+		$this->_putencryption();
+		$this->_out('>>');
+		$this->_out('endobj');
+	}
+/*-- END ENCRYPTION --*/
+}
+
+
+function _putjavascript() {
+	$this->_newobj();
+	$this->n_js = $this->n;
+	$this->_out('<<');
+	$this->_out('/Names [(EmbeddedJS) '.(1 + $this->n).' 0 R ]');
+	$this->_out('>>');
+	$this->_out('endobj');
+
+	$this->_newobj();
+	$this->_out('<<');
+	$this->_out('/S /JavaScript');
+	$this->_out('/JS '.$this->_textstring($this->js));
+	$this->_out('>>');
+	$this->_out('endobj');
+}
+
+
+
+
+/*-- ENCRYPTION --*/
+function _putencryption() 	{
+	$this->_out('/Filter /Standard');
+	if ($this->useRC128encryption) {
+		$this->_out('/V 2');
+		$this->_out('/R 3');
+		$this->_out('/Length 128');
+	}
+	else  {
+		$this->_out('/V 1');
+		$this->_out('/R 2');
+	}
+	$this->_out('/O ('.$this->_escape($this->Ovalue).')');
+	$this->_out('/U ('.$this->_escape($this->Uvalue).')');
+	$this->_out('/P '.$this->Pvalue);
+}
+/*-- END ENCRYPTION --*/
+
+function _puttrailer() {
+	$this->_out('/Size '.($this->n+1));
+	$this->_out('/Root '.$this->n.' 0 R');
+	$this->_out('/Info '.$this->InfoRoot.' 0 R');
+/*-- ENCRYPTION --*/
+	if ($this->encrypted) {
+		$this->_out('/Encrypt '.$this->enc_obj_id.' 0 R');
+		$this->_out('/ID [<'.$this->uniqid.'> <'.$this->uniqid.'>]');
+	}
+	else {
+/*-- END ENCRYPTION --*/
+		$uniqid = md5(time() .  $this->buffer);
+		$this->_out('/ID [<'.$uniqid.'> <'.$uniqid.'>]');
+/*-- ENCRYPTION --*/
+	}
+/*-- END ENCRYPTION --*/
+}
+
+/*-- ENCRYPTION --*/
+function SetProtection($permissions=array(),$user_pass='',$owner_pass=null, $length=40)	{
+		$this->encrypted=false;
+		if (is_string($permissions) && strlen($permissions)>0) { $permissions = array($permissions); }
+		else if (!is_array($permissions)) { return 0; }
+		$this->last_rc4_key='';
+		$this->padding="\x28\xBF\x4E\x5E\x4E\x75\x8A\x41\x64\x00\x4E\x56\xFF\xFA\x01\x08".
+						"\x2E\x2E\x00\xB6\xD0\x68\x3E\x80\x2F\x0C\xA9\xFE\x64\x53\x69\x7A";
+
+		$options = array(
+			'print' => 4, // bit 3
+			'modify' => 8, // bit 4
+			'copy' => 16, // bit 5
+			'annot-forms' => 32, // bit 6
+			'fill-forms' => 256, // bit 9
+			'extract' => 512, // bit 10
+			'assemble' => 1024,// bit 11
+			'print-highres' => 2048 // bit 12
+			);
+		// bit 31 = 1073741824
+		// bit 32 = 2147483648
+		// bits 13-31 = 2147479552
+		// bits 13-32 = 4294963200 + 192 = 4294963392
+		$protection = 4294963392; // bits 7,8,13-32
+		foreach ($permissions as $permission) {
+			if (!isset($options[$permission]))
+				$this->Error('Incorrect permission: '.$permission);
+			if ($options[$permission] > 32) { $this->useRC128encryption = true; }
+			if (isset($options[$permission])) $protection += $options[$permission];
+		}
+		if ($length==128) { $this->useRC128encryption = true; }
+		if ($owner_pass === null)
+			$owner_pass = uniqid(rand());
+		$this->encrypted = true;
+		$this->_generateencryptionkey($user_pass, $owner_pass, $protection);
+}
+
+
+// Compute key depending on object number where the encrypted data is stored
+function _objectkey($n) {
+	if ($this->useRC128encryption)
+		$len = 16;
+	else
+		$len = 10;
+	return substr($this->_md5_16($this->encryption_key.pack('VXxx',$n)),0,$len);
+}
+
+// RC4 is the standard encryption algorithm used in PDF format
+function _RC4($key, $text) {
+	if ($this->last_rc4_key != $key) {
+		$k = str_repeat($key, 256/strlen($key)+1);
+		$rc4 = range(0,255);
+		$j = 0;
+		for ($i=0; $i<256; $i++){
+			$t = $rc4[$i];
+			$j = ($j + $t + ord($k[$i])) % 256;
+			$rc4[$i] = $rc4[$j];
+			$rc4[$j] = $t;
+		}
+		$this->last_rc4_key = $key;
+		$this->last_rc4_key_c = $rc4;
+	} else {
+		$rc4 = $this->last_rc4_key_c;
+	}
+
+	$len = strlen($text);
+	$a = 0;
+	$b = 0;
+	$out = '';
+	for ($i=0; $i<$len; $i++){
+		$a = ($a+1)%256;
+		$t= $rc4[$a];
+		$b = ($b+$t)%256;
+		$rc4[$a] = $rc4[$b];
+		$rc4[$b] = $t;
+		$k = $rc4[($rc4[$a]+$rc4[$b])%256];
+		$out.= chr(ord($text[$i]) ^ $k);
+	}
+	return $out;
+}
+
+// Get MD5 as binary string
+function _md5_16($string) {
+	return pack('H*',md5($string));
+}
+
+// Compute O value
+function _Ovalue($user_pass, $owner_pass) {
+	$tmp = $this->_md5_16($owner_pass);
+	if ($this->useRC128encryption) {
+		for ($i = 0; $i < 50; ++$i) {
+			$tmp = $this->_md5_16($tmp);
+		}
+	}
+	if ($this->useRC128encryption)
+		$keybytelen = (128 / 8);
+	else 
+		$keybytelen = (40 / 8);
+	$owner_RC4_key = substr($tmp,0,$keybytelen);
+	$enc = $this->_RC4($owner_RC4_key, $user_pass);
+	if ($this->useRC128encryption) {
+		$len = strlen($owner_RC4_key);
+		for ($i = 1; $i <= 19; ++$i) {
+			$key = '';
+			for ($j = 0; $j < $len; ++$j) {
+				$key .= chr(ord($owner_RC4_key{$j}) ^ $i);
+			}
+			$enc = $this->_RC4($key, $enc);
+		}
+	}
+	return $enc;
+}
+
+// Compute U value
+function _Uvalue() {
+	if ($this->useRC128encryption) {
+		$tmp = $this->_md5_16($this->padding.$this->_hexToString($this->uniqid));
+		$enc = $this->_RC4($this->encryption_key, $tmp);
+		$len = strlen($tmp);
+		for ($i=1; $i<=19; ++$i) {
+			$key = '';
+			for ($j=0; $j<$len; ++$j) {
+				$key .= chr(ord($this->encryption_key{$j}) ^ $i);
+			}
+			$enc = $this->_RC4($key, $enc);
+		}
+		$enc .= str_repeat("\x00", 16);
+		return substr($enc, 0, 32);
+	}
+	else {
+		return $this->_RC4($this->encryption_key, $this->padding);
+	}
+}
+
+// Compute encryption key
+function _generateencryptionkey($user_pass, $owner_pass, $protection) {
+	// Pad passwords
+	$user_pass = substr($user_pass.$this->padding,0,32);
+	$owner_pass = substr($owner_pass.$this->padding,0,32);
+	$chars = 'ABCDEF1234567890';
+	$id = '';
+	for ($i=0; $i<32; $i++) { $id .= $chars{rand(0, 15)}; }
+	$this->uniqid = md5($id);
+	// Compute O value
+	$this->Ovalue = $this->_Ovalue($user_pass,$owner_pass);
+	// Compute encyption key
+	if ($this->useRC128encryption)
+		$keybytelen = (128/8);
+	else 
+		$keybytelen = (40/8);
+	$prot = sprintf('%032b', $protection);
+	$perms = chr(bindec(substr($prot,24,8)));
+	$perms .= chr(bindec(substr($prot,16,8)));
+	$perms .= chr(bindec(substr($prot,8,8)));
+	$perms .= chr(bindec(substr($prot,0,8)));
+	$tmp = $this->_md5_16($user_pass.$this->Ovalue.$perms.$this->_hexToString($this->uniqid));
+	if ($this->useRC128encryption) {
+		for ($i=0; $i<50; ++$i) {
+			$tmp = $this->_md5_16(substr($tmp, 0, $keybytelen));
+		}
+	}
+	$this->encryption_key = substr($tmp,0,$keybytelen);
+	// Compute U value
+	$this->Uvalue = $this->_Uvalue();
+	// Compute P value
+	$this->Pvalue = $protection;
+}
+
+
+function _hexToString($hs) {
+	$s = '';
+	$len = strlen($hs);
+	if (($len % 2) != 0) {
+		$hs .= '0';
+		++$len;
+	}
+	for ($i = 0; $i < $len; $i += 2) {
+		$s .= chr(hexdec($hs{$i}.$hs{($i + 1)}));
+	}
+	return $s;
+}
+
+/*-- END ENCRYPTION --*/
+
+//=========================================
+/*-- BOOKMARKS --*/
+// FROM class PDF_Bookmark
+
+function Bookmark($txt,$level=0,$y=0) {
+	$txt = $this->purify_utf8_text($txt);
+	if ($this->text_input_as_HTML) {
+		$txt = $this->all_entities_to_utf8($txt);
+	}
+	if($y==-1) {
+		if (!$this->ColActive){ $y=$this->y; }
+		else { $y = $this->y0; }	// If columns are on - mark top of columns
+	}
+	// else y is used as set, or =0 i.e. top of page
+	// DIRECTIONALITY RTL
+	$bmo = array('t'=>$txt,'l'=>$level,'y'=>$y,'p'=>$this->page);
+	if ($this->keep_block_together) {
+		// do nothing
+	}
+/*-- TABLES --*/
+	else if ($this->table_rotate) {
+		$this->tbrot_BMoutlines[]= $bmo;
+	}
+	else if ($this->kwt) {
+		$this->kwt_BMoutlines[]= $bmo;
+	}
+/*-- END TABLES --*/
+	else if ($this->ColActive) {	// *COLUMNS*
+		$this->col_BMoutlines[]= $bmo;	// *COLUMNS*
+	}	// *COLUMNS*
+	else {
+		$this->BMoutlines[]= $bmo;
+	}
+}
+
+
+function _putbookmarks()
+{
+	$nb=count($this->BMoutlines);
+	if($nb==0)
+		return;
+
+	$bmo = $this->BMoutlines;
+	$this->BMoutlines = array();
+	$lastlevel = -1;
+	for($i=0;$i<count($bmo);$i++) {
+		if ($bmo[$i]['l']>0) {
+			while($bmo[$i]['l']-$lastlevel > 1) {	// If jump down more than one level, insert a new entry
+				$new = $bmo[$i];
+				$new['t']="[".$new['t']."]";	// Put [] around text/title to highlight
+				$new['l']=$lastlevel+1;
+				$lastlevel++;
+				$this->BMoutlines[] = $new;
+			}
+		}
+		$this->BMoutlines[] = $bmo[$i];
+		$lastlevel = $bmo[$i]['l'];
+	}
+	$nb=count($this->BMoutlines);
+
+	$lru=array();
+	$level=0;
+	foreach($this->BMoutlines as $i=>$o) {
+		if($o['l']>0) {
+			$parent=$lru[$o['l']-1];
+			//Set parent and last pointers
+			$this->BMoutlines[$i]['parent']=$parent;
+			$this->BMoutlines[$parent]['last']=$i;
+			if($o['l']>$level) {
+				//Level increasing: set first pointer
+				$this->BMoutlines[$parent]['first']=$i;
+			}
+		}
+		else {
+			$this->BMoutlines[$i]['parent']=$nb;
+		}
+		if($o['l']<=$level and $i>0) {
+			//Set prev and next pointers
+			$prev=$lru[$o['l']];
+			$this->BMoutlines[$prev]['next']=$i;
+			$this->BMoutlines[$i]['prev']=$prev;
+		}
+		$lru[$o['l']]=$i;
+		$level=$o['l'];
+	}
+
+
+	//Outline items
+	$n=$this->n+1;
+	foreach($this->BMoutlines as $i=>$o) {
+		$this->_newobj();
+		$this->_out('<</Title '.$this->_UTF16BEtextstring($o['t']));
+		$this->_out('/Parent '.($n+$o['parent']).' 0 R');
+		if(isset($o['prev']))
+			$this->_out('/Prev '.($n+$o['prev']).' 0 R');
+		if(isset($o['next']))
+			$this->_out('/Next '.($n+$o['next']).' 0 R');
+		if(isset($o['first']))
+			$this->_out('/First '.($n+$o['first']).' 0 R');
+		if(isset($o['last']))
+			$this->_out('/Last '.($n+$o['last']).' 0 R');
+
+
+		if (isset($this->pageDim[$o['p']]['h'])) { $h=$this->pageDim[$o['p']]['h']; }
+		else { $h = 0; }
+
+		$this->_out(sprintf('/Dest [%d 0 R /XYZ 0 %.3F null]',1+2*($o['p']),($h-$o['y'])*_MPDFK));
+		if (isset($this->bookmarkStyles) && isset($this->bookmarkStyles[$o['l']])) {
+			// font style
+			$bms = $this->bookmarkStyles[$o['l']]['style'];
+			$style = 0;
+			if (strpos($bms,'B') !== false) { $style += 2; }
+			if (strpos($bms,'I') !== false) { $style += 1; }
+			$this->_out(sprintf('/F %d', $style));
+			// Colour
+			$col = $this->bookmarkStyles[$o['l']]['color'];
+			if (isset($col) && is_array($col) && count($col)==3) {
+				$this->_out(sprintf('/C [%.3F %.3F %.3F]', ($col[0]/255), ($col[1]/255), ($col[2]/255)));
+			} 
+		}
+
+		$this->_out('/Count 0>>');
+		$this->_out('endobj');
+	}
+	//Outline root
+	$this->_newobj();
+	$this->OutlineRoot=$this->n;
+	$this->_out('<</Type /BMoutlines /First '.$n.' 0 R');
+	$this->_out('/Last '.($n+$lru[0]).' 0 R>>');
+	$this->_out('endobj');
+}
+/*-- END BOOKMARKS --*/
+
+
+
+
+//======================================================
+/*-- TOC --*/
+// ToC TABLE OF CONTENTS
+
+// Initiate, and Mark a place for the Table of Contents to be inserted
+function TOC($tocfont='', $tocfontsize=0, $tocindent=0, $resetpagenum='', $pagenumstyle='', $suppress='', $toc_orientation='', $TOCusePaging=true, $TOCuseLinking=false, $toc_id=0, $tocoutdent='') {
+	if (!class_exists('tocontents', false)) { include(_MPDF_PATH.'classes/tocontents.php'); }
+	if (empty($this->tocontents)) { $this->tocontents = new tocontents($this); }
+	$this->tocontents->TOC($tocfont, $tocfontsize, $tocindent, $resetpagenum, $pagenumstyle, $suppress, $toc_orientation, $TOCusePaging, $TOCuseLinking, $toc_id, $tocoutdent);
+}
+
+
+function TOCpagebreakByArray($a) {
+	if (!is_array($a)) { $a = array(); }
+	if (!class_exists('tocontents', false)) { include(_MPDF_PATH.'classes/tocontents.php'); }
+	if (empty($this->tocontents)) { $this->tocontents = new tocontents($this); }
+	$tocoutdent = (isset($a['tocoutdent']) ? $a['tocoutdent'] : (isset($a['outdent']) ? $a['outdent'] : ''));
+	$TOCusePaging = (isset($a['TOCusePaging']) ? $a['TOCusePaging'] : (isset($a['paging']) ? $a['paging'] : true));
+	$TOCuseLinking = (isset($a['TOCuseLinking']) ? $a['TOCuseLinking'] : (isset($a['links']) ? $a['links'] : ''));
+	$toc_orientation = (isset($a['toc_orientation']) ? $a['toc_orientation'] : (isset($a['toc-orientation']) ? $a['toc-orientation'] : ''));
+	$toc_mgl = (isset($a['toc_mgl']) ? $a['toc_mgl'] : (isset($a['toc-margin-left']) ? $a['toc-margin-left'] : ''));
+	$toc_mgr = (isset($a['toc_mgr']) ? $a['toc_mgr'] : (isset($a['toc-margin-right']) ? $a['toc-margin-right'] : ''));
+	$toc_mgt = (isset($a['toc_mgt']) ? $a['toc_mgt'] : (isset($a['toc-margin-top']) ? $a['toc-margin-top'] : ''));
+	$toc_mgb = (isset($a['toc_mgb']) ? $a['toc_mgb'] : (isset($a['toc-margin-bottom']) ? $a['toc-margin-bottom'] : ''));
+	$toc_mgh = (isset($a['toc_mgh']) ? $a['toc_mgh'] : (isset($a['toc-margin-header']) ? $a['toc-margin-header'] : ''));
+	$toc_mgf = (isset($a['toc_mgf']) ? $a['toc_mgf'] : (isset($a['toc-margin-footer']) ? $a['toc-margin-footer'] : ''));
+	$toc_ohname = (isset($a['toc_ohname']) ? $a['toc_ohname'] : (isset($a['toc-odd-header-name']) ? $a['toc-odd-header-name'] : ''));
+	$toc_ehname = (isset($a['toc_ehname']) ? $a['toc_ehname'] : (isset($a['toc-even-header-name']) ? $a['toc-even-header-name'] : ''));
+	$toc_ofname = (isset($a['toc_ofname']) ? $a['toc_ofname'] : (isset($a['toc-odd-footer-name']) ? $a['toc-odd-footer-name'] : ''));
+	$toc_efname = (isset($a['toc_efname']) ? $a['toc_efname'] : (isset($a['toc-even-footer-name']) ? $a['toc-even-footer-name'] : ''));
+	$toc_ohvalue = (isset($a['toc_ohvalue']) ? $a['toc_ohvalue'] : (isset($a['toc-odd-header-value']) ? $a['toc-odd-header-value'] : 0));
+	$toc_ehvalue = (isset($a['toc_ehvalue']) ? $a['toc_ehvalue'] : (isset($a['toc-even-header-value']) ? $a['toc-even-header-value'] : 0));
+	$toc_ofvalue = (isset($a['toc_ofvalue']) ? $a['toc_ofvalue'] : (isset($a['toc-odd-footer-value']) ? $a['toc-odd-footer-value'] : 0));
+	$toc_efvalue = (isset($a['toc_efvalue']) ? $a['toc_efvalue'] : (isset($a['toc-even-footer-value']) ? $a['toc-even-footer-value'] : 0));
+	$toc_preHTML = (isset($a['toc_preHTML']) ? $a['toc_preHTML'] : (isset($a['toc-preHTML']) ? $a['toc-preHTML'] : ''));
+	$toc_postHTML = (isset($a['toc_postHTML']) ? $a['toc_postHTML'] : (isset($a['toc-postHTML']) ? $a['toc-postHTML'] : ''));
+	$toc_bookmarkText = (isset($a['toc_bookmarkText']) ? $a['toc_bookmarkText'] : (isset($a['toc-bookmarkText']) ? $a['toc-bookmarkText'] : ''));
+	$resetpagenum = (isset($a['resetpagenum']) ? $a['resetpagenum'] : '');
+	$pagenumstyle = (isset($a['pagenumstyle']) ? $a['pagenumstyle'] : '');
+	$suppress = (isset($a['suppress']) ? $a['suppress'] : '');
+	$orientation = (isset($a['orientation']) ? $a['orientation'] : '');
+	$mgl = (isset($a['mgl']) ? $a['mgl'] : (isset($a['margin-left']) ? $a['margin-left'] : ''));
+	$mgr = (isset($a['mgr']) ? $a['mgr'] : (isset($a['margin-right']) ? $a['margin-right'] : ''));
+	$mgt = (isset($a['mgt']) ? $a['mgt'] : (isset($a['margin-top']) ? $a['margin-top'] : ''));
+	$mgb = (isset($a['mgb']) ? $a['mgb'] : (isset($a['margin-bottom']) ? $a['margin-bottom'] : ''));
+	$mgh = (isset($a['mgh']) ? $a['mgh'] : (isset($a['margin-header']) ? $a['margin-header'] : ''));
+	$mgf = (isset($a['mgf']) ? $a['mgf'] : (isset($a['margin-footer']) ? $a['margin-footer'] : ''));
+	$ohname = (isset($a['ohname']) ? $a['ohname'] : (isset($a['odd-header-name']) ? $a['odd-header-name'] : ''));
+	$ehname = (isset($a['ehname']) ? $a['ehname'] : (isset($a['even-header-name']) ? $a['even-header-name'] : ''));
+	$ofname = (isset($a['ofname']) ? $a['ofname'] : (isset($a['odd-footer-name']) ? $a['odd-footer-name'] : ''));
+	$efname = (isset($a['efname']) ? $a['efname'] : (isset($a['even-footer-name']) ? $a['even-footer-name'] : ''));
+	$ohvalue = (isset($a['ohvalue']) ? $a['ohvalue'] : (isset($a['odd-header-value']) ? $a['odd-header-value'] : 0));
+	$ehvalue = (isset($a['ehvalue']) ? $a['ehvalue'] : (isset($a['even-header-value']) ? $a['even-header-value'] : 0));
+	$ofvalue = (isset($a['ofvalue']) ? $a['ofvalue'] : (isset($a['odd-footer-value']) ? $a['odd-footer-value'] : 0));
+	$efvalue = (isset($a['efvalue']) ? $a['efvalue'] : (isset($a['even-footer-value']) ? $a['even-footer-value'] : 0));
+	$toc_id = (isset($a['toc_id']) ? $a['toc_id'] : (isset($a['name']) ? $a['name'] : 0));
+	$pagesel = (isset($a['pagesel']) ? $a['pagesel'] : (isset($a['pageselector']) ? $a['pageselector'] : ''));
+	$toc_pagesel = (isset($a['toc_pagesel']) ? $a['toc_pagesel'] : (isset($a['toc-pageselector']) ? $a['toc-pageselector'] : ''));
+	$sheetsize = (isset($a['sheetsize']) ? $a['sheetsize'] : (isset($a['sheet-size']) ? $a['sheet-size'] : ''));
+	$toc_sheetsize = (isset($a['toc_sheetsize']) ? $a['toc_sheetsize'] : (isset($a['toc-sheet-size']) ? $a['toc-sheet-size'] : ''));
+
+	$this->TOCpagebreak($tocfont, $tocfontsize, $tocindent, $TOCusePaging, $TOCuseLinking, $toc_orientation, $toc_mgl, $toc_mgr, $toc_mgt, $toc_mgb, $toc_mgh, $toc_mgf, $toc_ohname, $toc_ehname, $toc_ofname, $toc_efname, $toc_ohvalue, $toc_ehvalue, $toc_ofvalue, $toc_efvalue, $toc_preHTML, $toc_postHTML, $toc_bookmarkText, $resetpagenum, $pagenumstyle, $suppress, $orientation, $mgl, $mgr, $mgt, $mgb, $mgh, $mgf, $ohname, $ehname, $ofname, $efname, $ohvalue, $ehvalue, $ofvalue, $efvalue, $toc_id, $pagesel, $toc_pagesel, $sheetsize, $toc_sheetsize, $tocoutdent);
+
+}
+
+function TOCpagebreak($tocfont='', $tocfontsize='', $tocindent='', $TOCusePaging=true, $TOCuseLinking='', $toc_orientation='', $toc_mgl='',$toc_mgr='',$toc_mgt='',$toc_mgb='',$toc_mgh='',$toc_mgf='',$toc_ohname='',$toc_ehname='',$toc_ofname='',$toc_efname='',$toc_ohvalue=0,$toc_ehvalue=0,$toc_ofvalue=0, $toc_efvalue=0, $toc_preHTML='', $toc_postHTML='', $toc_bookmarkText='', $resetpagenum='', $pagenumstyle='', $suppress='', $orientation='', $mgl='',$mgr='',$mgt='',$mgb='',$mgh='',$mgf='',$ohname='',$ehname='',$ofname='',$efname='',$ohvalue=0,$ehvalue=0,$ofvalue=0,$efvalue=0, $toc_id=0, $pagesel='', $toc_pagesel='', $sheetsize='', $toc_sheetsize='', $tocoutdent='') {
+		if (!class_exists('tocontents', false)) { include(_MPDF_PATH.'classes/tocontents.php'); }
+		if (empty($this->tocontents)) { $this->tocontents = new tocontents($this); }
+		if (!$resetpagenum) { $resetpagenum= 1; }	// mPDF 6
+		//Start a new page
+		if($this->state==0) $this->AddPage();
+		if ($this->y == $this->tMargin && (!$this->mirrorMargins ||($this->mirrorMargins && $this->page % 2==1))) {
+			// Don't add a page
+			if ($this->page==1 && count($this->PageNumSubstitutions)==0) { 
+				if (!$suppress) { $suppress = 'off'; }
+				//$this->PageNumSubstitutions[] = array('from'=>1, 'reset'=> $resetpagenum, 'type'=>$pagenumstyle, 'suppress'=> $suppress);
+			}
+			$this->PageNumSubstitutions[] = array('from'=>$this->page, 'reset'=> $resetpagenum, 'type'=>$pagenumstyle, 'suppress'=> $suppress); 
+		}
+		else {
+			$this->AddPage($orientation,'NEXT-ODD', $resetpagenum, $pagenumstyle, $suppress,$mgl,$mgr,$mgt,$mgb,$mgh,$mgf,$ohname,$ehname,$ofname,$efname,$ohvalue,$ehvalue,$ofvalue,$efvalue,$pagesel,$sheetsize);
+		}
+		$this->tocontents->TOCpagebreak($tocfont, $tocfontsize, $tocindent, $TOCusePaging, $TOCuseLinking, $toc_orientation, $toc_mgl, $toc_mgr, $toc_mgt, $toc_mgb, $toc_mgh, $toc_mgf, $toc_ohname, $toc_ehname, $toc_ofname, $toc_efname, $toc_ohvalue, $toc_ehvalue, $toc_ofvalue, $toc_efvalue, $toc_preHTML, $toc_postHTML, $toc_bookmarkText, $resetpagenum, $pagenumstyle, $suppress, $orientation, $mgl, $mgr, $mgt, $mgb, $mgh, $mgf, $ohname, $ehname, $ofname, $efname, $ohvalue, $ehvalue, $ofvalue, $efvalue, $toc_id, $pagesel, $toc_pagesel, $sheetsize, $toc_sheetsize, $tocoutdent);
+}
+
+function TOC_Entry($txt, $level=0, $toc_id=0) {
+  		if ($this->ColActive) { $ily = $this->y0; } else { $ily = $this->y; }	// use top of columns
+
+		if (!class_exists('tocontents', false)) { include(_MPDF_PATH.'classes/tocontents.php'); }
+		if (empty($this->tocontents)) { $this->tocontents = new tocontents($this); }
+		$linkn = $this->AddLink();
+		$uid = '__mpdfinternallink_' . $linkn ;
+		if ($this->table_rotate) { $this->internallink[$uid] = array("Y"=>$ily,"PAGE"=>$this->page, "tbrot"=>true ); }
+		else if ($this->kwt) { $this->internallink[$uid] = array("Y"=>$ily,"PAGE"=>$this->page, "kwt"=>true ); }
+		else if ($this->ColActive) { $this->internallink[$uid] = array("Y"=>$ily,"PAGE"=>$this->page, "col"=>$this->CurrCol ); }
+		else if (!$this->keep_block_together) { $this->internallink[$uid] = array("Y"=>$ily,"PAGE"=>$this->page ); }
+		$this->internallink['#'.$uid] = $linkn;
+		$this->SetLink($linkn,$ily,$this->page);
+
+		if (strtoupper($toc_id)=='ALL') { $toc_id = '_mpdf_all'; }
+		else if (!$toc_id) { $toc_id = 0; }
+		else { $toc_id = strtolower($toc_id); }
+		$btoc = array('t'=>$txt,'l'=>$level,'p'=>$this->page, 'link'=>$linkn, 'toc_id'=>$toc_id);
+		if ($this->keep_block_together) {
+			// do nothing
+		}
+/*-- TABLES --*/
+		else if ($this->table_rotate) {
+			$this->tbrot_toc[]= $btoc;
+		}
+		else if ($this->kwt) {
+			$this->kwt_toc[]= $btoc;
+		}
+/*-- END TABLES --*/
+		else if ($this->ColActive) {		// *COLUMNS*
+			$this->col_toc[]= $btoc;	// *COLUMNS*
+		}						// *COLUMNS*
+		else {
+			$this->tocontents->_toc[]= $btoc;
+		}
+}
+
+/*-- END TOC --*/
+
+//======================================================
+function MovePages($target_page, $start_page, $end_page=-1) {
+	// move a page/pages EARLIER in the document
+		if ($end_page<1) { $end_page = $start_page; }
+		$n_toc = $end_page - $start_page + 1;
+
+		// Set/Update PageNumSubstitutions changes before moving anything
+		if (count($this->PageNumSubstitutions)) {
+			$tp_present = false;
+			$sp_present = false;
+			$ep_present = false;
+			foreach($this->PageNumSubstitutions AS $k=>$v) {
+			  if ($this->PageNumSubstitutions[$k]['from']==$target_page) {
+				$tp_present = true;
+				if ($this->PageNumSubstitutions[$k]['suppress']!='on' && $this->PageNumSubstitutions[$k]['suppress']!=1) { 
+					$this->PageNumSubstitutions[$k]['suppress']='off';
+				}
+			  }
+			  if ($this->PageNumSubstitutions[$k]['from']==$start_page) {
+				$sp_present = true;
+				if ($this->PageNumSubstitutions[$k]['suppress']!='on' && $this->PageNumSubstitutions[$k]['suppress']!=1) { 
+					$this->PageNumSubstitutions[$k]['suppress']='off';
+				}
+			  }
+			  if ($this->PageNumSubstitutions[$k]['from']==($end_page+1)) {
+				$ep_present = true;
+				if ($this->PageNumSubstitutions[$k]['suppress']!='on' && $this->PageNumSubstitutions[$k]['suppress']!=1) { 
+					$this->PageNumSubstitutions[$k]['suppress']='off';
+				}
+			  }
+			}
+
+			if (!$tp_present) { 
+				list($tp_type, $tp_suppress, $tp_reset) = $this->docPageSettings($target_page);
+			}
+			if (!$sp_present) { 
+				list($sp_type, $sp_suppress, $sp_reset) = $this->docPageSettings($start_page);
+			}
+			if (!$ep_present) { 
+				list($ep_type, $ep_suppress, $ep_reset) = $this->docPageSettings($start_page-1);
+			}
+
+		}
+
+		$last = array();
+		//store pages
+		for($i = $start_page;$i <= $end_page ;$i++)
+			$last[]=$this->pages[$i];
+		//move pages
+		for($i=$start_page - 1;$i>=($target_page);$i--) {
+			$this->pages[$i+$n_toc]=$this->pages[$i];
+		}
+		//Put toc pages at insert point
+		for($i = 0;$i < $n_toc;$i++) {
+			$this->pages[$target_page + $i]=$last[$i];
+		}
+
+/*-- BOOKMARKS --*/
+		// Update Bookmarks
+		foreach($this->BMoutlines as $i=>$o) {
+			if($o['p']>=$target_page) {
+				$this->BMoutlines[$i]['p'] += $n_toc;
+			}
+		}
+/*-- END BOOKMARKS --*/
+
+		// Update Page Links
+		if (count($this->PageLinks)) {
+		   $newarr = array();
+		   foreach($this->PageLinks as $i=>$o) {
+			foreach($this->PageLinks[$i] as $key => $pl) {
+				if (strpos($pl[4],'@')===0) {
+					$p=substr($pl[4],1);
+					if($p>=$start_page && $p<=$end_page) {
+						$this->PageLinks[$i][$key][4] = '@'.($p + ($target_page - $start_page));
+					}
+					else if($p>=$target_page && $p<$start_page) {
+						$this->PageLinks[$i][$key][4] = '@'.($p+$n_toc);
+					}
+				}
+			}
+			if($i>=$start_page && $i<=$end_page) {
+				$newarr[($i + ($target_page - $start_page))] = $this->PageLinks[$i];
+			}
+			else if($i>=$target_page && $i<$start_page) {
+				$newarr[($i + $n_toc)] = $this->PageLinks[$i];
+			}
+			else {
+				$newarr[$i] = $this->PageLinks[$i];
+			}
+		   }
+		   $this->PageLinks = $newarr;
+		}
+
+		// OrientationChanges
+		if (count($this->OrientationChanges)) {
+			$newarr = array();
+			foreach($this->OrientationChanges AS $p=>$v) {
+				if($p>=$start_page && $p<=$end_page) { $newarr[($p + ($target_page - $start_page))] = $this->OrientationChanges[$p]; }
+				else if($p>=$target_page && $p<$start_page) { $newarr[$p+$n_toc] = $this->OrientationChanges[$p]; }
+				else { $newarr[$p] = $this->OrientationChanges[$p]; }
+			}
+			ksort($newarr);
+			$this->OrientationChanges = $newarr;
+		}
+
+		// Page Dimensions
+		if (count($this->pageDim)) {
+			$newarr = array();
+			foreach($this->pageDim AS $p=>$v) {
+				if($p>=$start_page && $p<=$end_page) { $newarr[($p + ($target_page - $start_page))] = $this->pageDim[$p]; }
+				else if($p>=$target_page && $p<$start_page) { $newarr[$p+$n_toc] = $this->pageDim[$p]; }
+				else { $newarr[$p] = $this->pageDim[$p]; }
+			}
+			ksort($newarr);
+			$this->pageDim = $newarr;
+		}
+
+		// HTML Headers & Footers
+		if (count($this->saveHTMLHeader)) {
+			$newarr = array();
+			foreach($this->saveHTMLHeader AS $p=>$v) {
+				if($p>=$start_page && $p<=$end_page) { $newarr[($p + ($target_page - $start_page))] = $this->saveHTMLHeader[$p]; }
+				else if($p>=$target_page && $p<$start_page) { $newarr[$p+$n_toc] = $this->saveHTMLHeader[$p]; }
+				else { $newarr[$p] = $this->saveHTMLHeader[$p]; }
+			}
+			ksort($newarr);
+			$this->saveHTMLHeader = $newarr;
+		}
+		if (count($this->saveHTMLFooter)) {
+			$newarr = array();
+			foreach($this->saveHTMLFooter AS $p=>$v) {
+				if($p>=$start_page && $p<=$end_page) { $newarr[($p + ($target_page - $start_page))] = $this->saveHTMLFooter[$p]; }
+				else if($p>=$target_page && $p<$start_page) { $newarr[$p+$n_toc] = $this->saveHTMLFooter[$p]; }
+				else { $newarr[$p] = $this->saveHTMLFooter[$p]; }
+			}
+			ksort($newarr);
+			$this->saveHTMLFooter = $newarr;
+		}
+
+		// Update Internal Links
+		if (count($this->internallink)) {
+		   foreach($this->internallink as $key=>$o) {
+			if($o['PAGE']>=$start_page && $o['PAGE']<=$end_page) {
+				$this->internallink[$key]['PAGE'] += ($target_page - $start_page);
+			}
+			else if($o['PAGE']>=$target_page && $o['PAGE']<$start_page) {
+				$this->internallink[$key]['PAGE'] += $n_toc;
+			}
+		   }
+		}
+
+		// Update Links
+		if (count($this->links)) {
+		   foreach($this->links as $key=>$o) {
+			if($o[0]>=$start_page && $o[0]<=$end_page) {
+				$this->links[$key][0] += ($target_page - $start_page);
+			}
+			if($o[0]>=$target_page && $o[0]<$start_page) {
+				$this->links[$key][0] += $n_toc;
+			}
+		   }
+		}
+
+		// Update Form fields
+		if (count($this->mpdfform->forms)) {
+		   foreach($this->mpdfform->forms as $key=>$f) {
+			if($f['page']>=$start_page && $f['page']<=$end_page) {
+				$this->mpdfform->forms[$key]['page'] += ($target_page - $start_page);
+			}
+			if($f['page']>=$target_page && $f['page']<$start_page) {
+				$this->mpdfform->forms[$key]['page'] += $n_toc;
+			}
+		   }
+		}
+
+/*-- ANNOTATIONS --*/
+		// Update Annotations
+		if (count($this->PageAnnots)) {
+		   $newarr = array();
+		   foreach($this->PageAnnots as $p=>$anno) {
+			if($p>=$start_page && $p<=$end_page) {
+				$np = $p + ($target_page - $start_page);
+				foreach($anno as $o) {
+					$newarr[$np][] = $o;
+				}
+			}
+			else if($p>=$target_page && $p<$start_page) {
+				$np = $p + $n_toc;
+				foreach($anno as $o) {
+					$newarr[$np][] = $o;
+				}
+		      }
+			else {
+				$newarr[$p] = $this->PageAnnots[$p];
+			}
+		   }
+		   $this->PageAnnots = $newarr;
+		   unset($newarr);
+		}
+/*-- END ANNOTATIONS --*/
+
+		// Update PageNumSubstitutions
+		if (count($this->PageNumSubstitutions)) {
+			$newarr = array();
+			foreach($this->PageNumSubstitutions AS $k=>$v) {
+				if($this->PageNumSubstitutions[$k]['from']>=$start_page && $this->PageNumSubstitutions[$k]['from']<=$end_page) { 
+					$this->PageNumSubstitutions[$k]['from'] += ($target_page - $start_page); 
+					$newarr[$this->PageNumSubstitutions[$k]['from']] = $this->PageNumSubstitutions[$k]; 
+				}
+				else if($this->PageNumSubstitutions[$k]['from']>=$target_page && $this->PageNumSubstitutions[$k]['from']<$start_page) {
+					$this->PageNumSubstitutions[$k]['from'] += $n_toc;
+					$newarr[$this->PageNumSubstitutions[$k]['from']] = $this->PageNumSubstitutions[$k]; 
+				}
+				else {
+					$newarr[$this->PageNumSubstitutions[$k]['from']] = $this->PageNumSubstitutions[$k]; 
+				}
+			}
+
+			if (!$sp_present) {
+					$newarr[$target_page] = array('from'=>$target_page, 'suppress'=>$sp_suppress, 'reset'=>$sp_reset, 'type'=>$sp_type); 
+			}
+			if (!$tp_present) {
+					$newarr[($target_page + $n_toc)] = array('from'=>($target_page+$n_toc), 'suppress'=>$tp_suppress, 'reset'=>$tp_reset, 'type'=>$tp_type); 
+			}
+			if (!$ep_present && $end_page>count($this->pages)) {
+					$newarr[($end_page+1)] = array('from'=>($end_page+1), 'suppress'=>$ep_suppress, 'reset'=>$ep_reset, 'type'=>$ep_type); 
+			}
+			ksort($newarr);
+			$this->PageNumSubstitutions = array();
+			foreach($newarr as $v) {
+				$this->PageNumSubstitutions[] = $v;
+			}
+		}
+}
+
+//======================================================
+function DeletePages($start_page, $end_page=-1) {
+	// move a page/pages EARLIER in the document
+		if ($end_page<1) { $end_page = $start_page; }
+		$n_tod = $end_page - $start_page + 1;
+		$last_page = count($this->pages);
+		$n_atend = $last_page - $end_page + 1;
+
+		//move pages
+		for($i=0;$i<$n_atend;$i++) {
+			$this->pages[$start_page+$i]=$this->pages[$end_page+1+$i];
+		}
+		//delete pages
+		for($i = 0;$i < $n_tod ;$i++)
+			unset($this->pages[$last_page-$i]);
+
+
+/*-- BOOKMARKS --*/
+		// Update Bookmarks
+		foreach($this->BMoutlines as $i=>$o) {
+			if($o['p']>=$end_page) { $this->BMoutlines[$i]['p'] -= $n_tod; }
+			else if($p<$start_page) { unset($this->BMoutlines[$i]); }
+		}
+/*-- END BOOKMARKS --*/
+
+		// Update Page Links
+		if (count($this->PageLinks)) {
+		   $newarr = array();
+		   foreach($this->PageLinks as $i=>$o) {
+			foreach($this->PageLinks[$i] as $key => $pl) {
+				if (strpos($pl[4],'@')===0) {
+					$p=substr($pl[4],1);
+					if($p>$end_page) { $this->PageLinks[$i][$key][4] = '@'.($p - $n_tod); }
+					else if($p<$start_page) { unset($this->PageLinks[$i][$key]); }
+				}
+			}
+			if($i>$end_page) { $newarr[($i - $n_tod)] = $this->PageLinks[$i]; }
+			else if($p<$start_page) { $newarr[$i] = $this->PageLinks[$i]; }
+		   }
+		   $this->PageLinks = $newarr;
+		}
+
+		// OrientationChanges
+		if (count($this->OrientationChanges)) {
+			$newarr = array();
+			foreach($this->OrientationChanges AS $p=>$v) {
+				if($p>$end_page) { $newarr[($p - $t_tod)] = $this->OrientationChanges[$p]; }
+				else if($p<$start_page) { $newarr[$p] = $this->OrientationChanges[$p]; }
+			}
+			ksort($newarr);
+			$this->OrientationChanges = $newarr;
+		}
+
+		// Page Dimensions
+		if (count($this->pageDim)) {
+			$newarr = array();
+			foreach($this->pageDim AS $p=>$v) {
+				if($p>$end_page) { $newarr[($p - $n_tod)] = $this->pageDim[$p]; }
+				else if($p<$start_page) { $newarr[$p] = $this->pageDim[$p]; }
+			}
+			ksort($newarr);
+			$this->pageDim = $newarr;
+		}
+
+		// HTML Headers & Footers
+		if (count($this->saveHTMLHeader)) {
+			foreach($this->saveHTMLHeader AS $p=>$v) {
+				if($p>$end_page) { $newarr[($p - $n_tod)] = $this->saveHTMLHeader[$p]; }	// mPDF 5.7.3
+				else if($p<$start_page) { $newarr[$p] = $this->saveHTMLHeader[$p]; }
+			}
+			ksort($newarr);
+			$this->saveHTMLHeader = $newarr;
+		}
+		if (count($this->saveHTMLFooter)) {
+			$newarr = array();
+			foreach($this->saveHTMLFooter AS $p=>$v) {
+				if($p>$end_page) { $newarr[($p - $n_tod)] = $this->saveHTMLFooter[$p]; }
+				else if($p<$start_page) { $newarr[$p] = $this->saveHTMLFooter[$p]; }
+			}
+			ksort($newarr);
+			$this->saveHTMLFooter = $newarr;
+		}
+
+		// Update Internal Links
+		foreach($this->internallink as $key=>$o) {
+			if($o['PAGE']>$end_page) { $this->internallink[$key]['PAGE'] -= $n_tod; }
+			else if($o['PAGE']<$start_page) { unset($this->internallink[$key]); }
+		}
+
+		// Update Links
+		foreach($this->links as $key=>$o) {
+			if($o[0]>$end_page) { $this->links[$key][0] -= $n_tod; }
+			else if($o[0]<$start_page) { unset($this->links[$key]); }
+		}
+
+		// Update Form fields
+		foreach($this->mpdfform->forms as $key=>$f) {
+			if($f['page']>$end_page) { $this->mpdfform->forms[$key]['page'] -= $n_tod; }
+			else if($f['page']<$start_page) { unset($this->mpdfform->forms[$key]); }
+		}
+
+/*-- ANNOTATIONS --*/
+		// Update Annotations
+		if (count($this->PageAnnots)) {
+		   $newarr = array();
+		   foreach($this->PageAnnots as $p=>$anno) {
+			if($p>$end_page) { foreach($anno as $o) { $newarr[($p - $n_tod)][] = $o; } }
+			else if($p<$start_page) { $newarr[$p] = $this->PageAnnots[$p]; }
+		   }
+		   ksort($newarr);
+		   $this->PageAnnots = $newarr;
+		}
+/*-- END ANNOTATIONS --*/
+
+		// Update PageNumSubstitutions
+		foreach($this->PageNumSubstitutions AS $k=>$v) {
+			if($this->PageNumSubstitutions[$k]['from']>$end_page) { $this->PageNumSubstitutions[$k]['from'] -= $n_tod; }
+			else if($this->PageNumSubstitutions[$k]['from']<$start_page) { unset($this->PageNumSubstitutions[$k]); }
+		}
+
+	unset($newarr);
+	$this->page = count($this->pages);
+}
+
+
+//======================================================
+/*-- INDEX --*/
+// FROM class PDF_Ref == INDEX
+
+
+function IndexEntry($txt, $xref='') {
+	if ($xref) { 
+		$this->IndexEntrySee($txt,$xref);
+		return;
+	}
+
+	//Search the reference (AND Ref/PageNo) in the array
+	$Present = false;
+	if ($this->keep_block_together) {
+		// do nothing
+	}
+/*-- TABLES --*/
+	else if ($this->kwt) {
+		$size=count($this->kwt_Reference);
+		for ($i=0;$i<$size;$i++){
+			if (isset($this->kwt_Reference[$i]['t']) && $this->kwt_Reference[$i]['t']==$txt){
+				$Present = true;
+				if ($this->page != $this->kwt_Reference[$i]['op']) {
+					$this->kwt_Reference[$i]['op'] = $this->page;
+				}
+			}
+		}
+		if (!$Present) {	//If not found, add it
+			$this->kwt_Reference[] = array('t'=>$txt, 'op'=>$this->page);
+		}
+	}
+/*-- END TABLES --*/
+	else {
+		$size=count($this->Reference);
+		for ($i=0;$i<$size;$i++){
+			if (isset($this->Reference[$i]['t']) && $this->Reference[$i]['t']==$txt){
+				$Present = true;
+				if (!in_array($this->page,$this->Reference[$i]['p'])) {
+					$this->Reference[$i]['p'][] = $this->page;
+				}
+			}
+		}
+		if (!$Present) {	//If not found, add it
+			$this->Reference[] = array('t'=>$txt,'p'=>array($this->page));
+		}
+	}
+}
+
+
+// Added function to add a reference "Elephants. See Chickens"
+function IndexEntrySee($txta,$txtb) {
+	if ($this->directionality == 'rtl') {	// *OTL*
+		// ONLY DO THIS IF NOT IN TAGS
+		if ($txta == strip_tags($txta)) $txta = str_replace(':',' - ',$txta);	// *OTL*
+		if ($txtb == strip_tags($txtb)) $txtb = str_replace(':',' - ',$txtb);	// *OTL*
+	}	// *OTL*
+	else {	// *OTL*
+		if ($txta == strip_tags($txta)) $txta = str_replace(':',', ',$txta);
+		if ($txtb == strip_tags($txtb)) $txtb = str_replace(':',', ',$txtb);
+	}	// *OTL*
+	$this->Reference[]=array('t'=>$txta.' - see '.$txtb,'p'=>array());
+}
+
+
+function InsertIndex($usedivletters=1, $useLinking=false, $indexCollationLocale='', $indexCollationGroup='') {
+	$size=count($this->Reference);
+	if ($size == 0) { return false; }
+
+	// $spacer used after named entry
+	// $sep  separates number [groups], $joiner joins numbers in range
+	//  e.g. "elephant 73, 97-99"  =  elephant[$spacer]73[$sep]97[$joiner]99
+
+	// $subEntrySeparator separates main and subentry (if $this->indexUseSubentries == false;) e.g.
+	// Mammal:elephant => Mammal[$subEntrySeparator]elephant
+	// $subEntryInset specifies what precedes a subentry (if $this->indexUseSubentries == true;) e.g.
+	// Mammal:elephant => [$subEntryInset]elephant
+	$spacer = "\xc2\xa0 ";	
+	if ($this->directionality == 'rtl') { $sep = '&#x060c; '; $joiner = '-'; $subEntrySeparator = '&#x060c; '; $subEntryInset = ' - '; }
+	else { $sep = ', '; $joiner = '-'; $subEntrySeparator = ', '; $subEntryInset = ' - '; }
+
+	for ($i=0;$i<$size;$i++){
+		$txt = $this->Reference[$i]['t'];
+		$txt = strip_tags($txt);	// mPDF 6
+		$txt = $this->purify_utf8($txt);
+		$this->Reference[$i]['uf'] = $txt;	// Unformatted e.g. pure utf-8 encoded characters, no mark-up/tags
+								// Used for ordering and collation
+	}
+
+	if ($usedivletters) {
+		if ($indexCollationGroup) {
+			require_once(_MPDF_PATH.'collations/'.$indexCollationGroup.'.php');
+		}
+		else { $collation = array(); }
+		for ($i=0;$i<$size;$i++){
+	  	 	if ($this->Reference[$i]['uf']) { 
+				$l = mb_substr($this->Reference[$i]['uf'],0,1,'UTF-8');
+				if (isset($this->indexCollationGroup) && $this->indexCollationGroup) {
+					$uni = $this->UTF8StringToArray($l);
+					$ucode = $uni[0];
+					if (isset($collation[$ucode])) { $this->Reference[$i]['d'] = code2utf($collation[$ucode]); }
+					else { $this->Reference[$i]['d'] = mb_strtolower($l,'UTF-8'); }
+				

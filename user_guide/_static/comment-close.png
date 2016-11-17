@@ -1,0 +1,94 @@
+to Ascent
+		}
+
+
+
+
+		///////////////////////////////////
+		// hmtx - Horizontal metrics table
+		///////////////////////////////////
+		$this->getHMTX($numberOfHMetrics, $numGlyphs, $glyphToChar, $scale);
+
+		///////////////////////////////////
+		// kern - Kerning pair table
+		///////////////////////////////////
+		// Recognises old form of Kerning table - as required by Windows - Format 0 only
+		$kern_offset = $this->seek_table("kern");
+		$version = $this->read_ushort();
+		$nTables = $this->read_ushort();
+		// subtable header
+		$sversion = $this->read_ushort();
+		$slength = $this->read_ushort();
+		$scoverage = $this->read_ushort();
+		$format = $scoverage >> 8;
+ 		if ($kern_offset && $version==0 && $format==0) {
+			// Format 0
+			$nPairs = $this->read_ushort();
+			$this->skip(6);
+			for ($i=0; $i<$nPairs; $i++) {
+				$left = $this->read_ushort();
+				$right = $this->read_ushort();
+				$val = $this->read_short();
+				if (count($glyphToChar[$left])==1 && count($glyphToChar[$right])==1) {
+				  if ($left != 32 && $right != 32) {
+					$this->kerninfo[$glyphToChar[$left][0]][$glyphToChar[$right][0]] = intval($val*$scale);
+				  }
+				}
+			}
+		}
+	}
+
+
+/////////////////////////////////////////////////////////////////////////////////////////
+	function _getGDEFtables() {
+		///////////////////////////////////
+		// GDEF - Glyph Definition
+		///////////////////////////////////
+		// http://www.microsoft.com/typography/otspec/gdef.htm
+		if (isset($this->tables["GDEF"])) {
+			$gdef_offset = $this->seek_table("GDEF");
+			// ULONG Version of the GDEF table-currently 0x00010000
+			$ver_maj = $this->read_ushort();
+			$ver_min = $this->read_ushort();
+			$GlyphClassDef_offset = $this->read_ushort();
+			$AttachList_offset = $this->read_ushort();
+			$LigCaretList_offset = $this->read_ushort();
+			$MarkAttachClassDef_offset = $this->read_ushort();
+			// Version 0x00010002 of GDEF header contains additional Offset to a list defining mark glyph set definitions (MarkGlyphSetDef)
+			if ($ver_min == 2) {
+				$MarkGlyphSetsDef_offset = $this->read_ushort();
+			}
+
+			// GlyphClassDef
+			if ($GlyphClassDef_offset) {
+				$this->seek($gdef_offset+$GlyphClassDef_offset );
+				/*
+				1	Base glyph (single character, spacing glyph)
+				2	Ligature glyph (multiple character, spacing glyph)
+				3	Mark glyph (non-spacing combining glyph)
+				4	Component glyph (part of single character, spacing glyph)
+				*/
+				$GlyphByClass = $this->_getClassDefinitionTable();
+			}
+			else { $GlyphByClass = array(); }
+
+			if (isset($GlyphByClass[1]) && count($GlyphByClass[1])>0) { $this->GlyphClassBases = ' '.implode('| ',$GlyphByClass[1]); }
+			else { $this->GlyphClassBases = ''; }
+			if (isset($GlyphByClass[2]) && count($GlyphByClass[2])>0) { $this->GlyphClassLigatures = ' '.implode('| ',$GlyphByClass[2]); }
+			else { $this->GlyphClassLigatures = ''; }
+			if (isset($GlyphByClass[3]) && count($GlyphByClass[3])>0) { $this->GlyphClassMarks = ' '.implode('| ',$GlyphByClass[3]); }
+			else { $this->GlyphClassMarks = ''; }
+			if (isset($GlyphByClass[4]) && count($GlyphByClass[4])>0) { $this->GlyphClassComponents = ' '.implode('| ',$GlyphByClass[4]); }
+			else { $this->GlyphClassComponents = ''; }
+
+			if (isset($GlyphByClass[3]) && count($GlyphByClass[3])>0) { $Marks = $GlyphByClass[3]; } // to use for MarkAttachmentType 
+			else { $Marks = array(); }
+			
+
+
+/* Required for GPOS
+			// Attachment List
+			if ($AttachList_offset) {
+				$this->seek($gdef_offset+$AttachList_offset );
+			}
+The Att

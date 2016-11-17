@@ -1,0 +1,266 @@
+tkey, $TTCfontID=0, $debug=false, $BMPonly=false, $useOTL=0) {	// mPDF 5.7.1
+		$this->useOTL = $useOTL;	// mPDF 5.7.1
+		$this->fontkey = $fontkey;	// mPDF 5.7.1
+		$this->filename = $file;
+		$this->fh = fopen($file,'rb') or die('Can\'t open file ' . $file);
+		$this->_pos = 0;
+		$this->charWidths = '';
+		$this->glyphPos = array();
+		$this->charToGlyph = array();
+		$this->tables = array();
+		$this->otables = array();
+		$this->kerninfo = array();
+		$this->haskernGPOS = array();
+		$this->hassmallcapsGSUB = array();
+		$this->ascent = 0;
+		$this->descent = 0;
+		$this->lineGap = 0;	// mPDF 6
+		$this->hheaascent = 0;	// mPDF 6
+		$this->hheadescent = 0;	// mPDF 6
+		$this->hhealineGap = 0;	// mPDF 6
+		$this->xHeight = 0;	// mPDF 6
+		$this->capHeight = 0;	// mPDF 6
+		$this->panose = array();
+		$this->sFamilyClass = 0;
+		$this->sFamilySubClass = 0;
+		$this->typoAscender = 0;	// mPDF 6
+		$this->typoDescender = 0;	// mPDF 6
+		$this->typoLineGap = 0;		// mPDF 6
+		$this->usWinAscent = 0;		// mPDF 6
+		$this->usWinDescent = 0;	// mPDF 6
+		$this->advanceWidthMax = 0;	// mPDF 6
+		$this->strikeoutSize = 0;
+		$this->strikeoutPosition = 0;
+		$this->numTTCFonts = 0;
+		$this->TTCFonts = array();
+		$this->version = $version = $this->read_ulong();
+		$this->panose = array();
+		if ($version==0x4F54544F) 
+			die("Postscript outlines are not supported");
+		if ($version==0x74746366 && !$TTCfontID) 
+			die("ERROR - You must define the TTCfontID for a TrueType Collection in config_fonts.php (". $file.")");
+		if (!in_array($version, array(0x00010000,0x74727565)) && !$TTCfontID)
+			die("Not a TrueType font: version=".$version);
+		if ($TTCfontID > 0) {
+			$this->version = $version = $this->read_ulong();	// TTC Header version now
+			if (!in_array($version, array(0x00010000,0x00020000)))
+				die("ERROR - Error parsing TrueType Collection: version=".$version." - " . $file);
+			$this->numTTCFonts = $this->read_ulong();
+			for ($i=1; $i<=$this->numTTCFonts; $i++) {
+	      	      $this->TTCFonts[$i]['offset'] = $this->read_ulong();
+			}
+			$this->seek($this->TTCFonts[$TTCfontID]['offset']);
+			$this->version = $version = $this->read_ulong();	// TTFont version again now
+		}
+		$this->readTableDirectory($debug);
+		$this->extractInfo($debug, $BMPonly, $useOTL); 
+		fclose($this->fh);
+	}
+
+
+	function readTableDirectory($debug=false) {
+	    $this->numTables = $this->read_ushort();
+            $this->searchRange = $this->read_ushort();
+            $this->entrySelector = $this->read_ushort();
+            $this->rangeShift = $this->read_ushort();
+            $this->tables = array();	
+            for ($i=0;$i<$this->numTables;$i++) {
+                $record = array();
+                $record['tag'] = $this->read_tag();
+                $record['checksum'] = array($this->read_ushort(),$this->read_ushort());
+                $record['offset'] = $this->read_ulong();
+                $record['length'] = $this->read_ulong();
+                $this->tables[$record['tag']] = $record;
+		}
+		if ($debug) $this->checksumTables();
+	}
+
+	function checksumTables() {
+		// Check the checksums for all tables
+		foreach($this->tables AS $t) {
+		  if ($t['length'] > 0 && $t['length'] < $this->maxStrLenRead) {	// 1.02
+            	$table = $this->get_chunk($t['offset'], $t['length']);
+            	$checksum = $this->calcChecksum($table);
+            	if ($t['tag'] == 'head') {
+				$up = unpack('n*', substr($table,8,4));
+				$adjustment[0] = $up[1];
+				$adjustment[1] = $up[2];
+            		$checksum = $this->sub32($checksum, $adjustment);
+			}
+            	$xchecksum = $t['checksum'];
+            	if ($xchecksum != $checksum) 
+            	    die(sprintf('TTF file "%s": invalid checksum %s table: %s (expected %s)', $this->filename,dechex($checksum[0]).dechex($checksum[1]),$t['tag'],dechex($xchecksum[0]).dechex($xchecksum[1])));
+		  }
+		}
+	}
+
+	function sub32($x, $y) {
+		$xlo = $x[1];
+		$xhi = $x[0];
+		$ylo = $y[1];
+		$yhi = $y[0];
+		if ($ylo > $xlo) { $xlo += 1 << 16; $yhi += 1; }
+		$reslo = $xlo-$ylo;
+		if ($yhi > $xhi) { $xhi += 1 << 16;  }
+		$reshi = $xhi-$yhi;
+		$reshi = $reshi & 0xFFFF;
+		return array($reshi, $reslo);
+	}
+
+	function calcChecksum($data)  {
+		if (strlen($data) % 4) { $data .= str_repeat("\0",(4-(strlen($data) % 4))); }
+		$len = strlen($data);
+		$hi=0x0000;
+		$lo=0x0000;
+		for($i=0;$i<$len;$i+=4) {
+			$hi += (ord($data[$i])<<8) + ord($data[$i+1]);
+			$lo += (ord($data[$i+2])<<8) + ord($data[$i+3]);
+			$hi += ($lo >> 16) & 0xFFFF;
+			$lo = $lo & 0xFFFF;
+		}
+		$hi = $hi & 0xFFFF;	// mPDF 5.7.1
+		return array($hi, $lo);
+	}
+
+	function get_table_pos($tag) {
+		if (!isset($this->tables[$tag])) { return array(0,0); }
+		$offset = $this->tables[$tag]['offset'];
+		$length = $this->tables[$tag]['length'];
+		return array($offset, $length);
+	}
+
+	function seek($pos) {
+		$this->_pos = $pos;
+		fseek($this->fh,$this->_pos);
+	}
+
+	function skip($delta) {
+		$this->_pos = $this->_pos + $delta;
+		fseek($this->fh,$delta,SEEK_CUR);
+	}
+
+	function seek_table($tag, $offset_in_table = 0) {
+		$tpos = $this->get_table_pos($tag);
+		$this->_pos = $tpos[0] + $offset_in_table;
+		fseek($this->fh, $this->_pos);
+		return $this->_pos;
+	}
+
+	function read_tag() {
+		$this->_pos += 4;
+		return fread($this->fh,4);
+	}
+
+	function read_short() {
+		$this->_pos += 2;
+		$s = fread($this->fh,2);
+		$a = (ord($s[0])<<8) + ord($s[1]);
+		if ($a & (1 << 15) ) { 
+			$a = ($a - (1 << 16)); 
+		}
+		return $a;
+	}
+
+	function unpack_short($s) {
+		$a = (ord($s[0])<<8) + ord($s[1]);
+		if ($a & (1 << 15) ) { 
+			$a = ($a - (1 << 16)); 
+		}
+		return $a;
+	}
+
+	function read_ushort() {
+		$this->_pos += 2;
+		$s = fread($this->fh,2);
+		return (ord($s[0])<<8) + ord($s[1]);
+	}
+
+	function read_ulong() {
+		$this->_pos += 4;
+		$s = fread($this->fh,4);
+		// if large uInt32 as an integer, PHP converts it to -ve
+		return (ord($s[0])*16777216) + (ord($s[1])<<16) + (ord($s[2])<<8) + ord($s[3]); // 	16777216  = 1<<24
+	}
+
+	function get_ushort($pos) {
+		fseek($this->fh,$pos);
+		$s = fread($this->fh,2);
+		return (ord($s[0])<<8) + ord($s[1]);
+	}
+
+	function get_ulong($pos) {
+		fseek($this->fh,$pos);
+		$s = fread($this->fh,4);
+		// iF large uInt32 as an integer, PHP converts it to -ve
+		return (ord($s[0])*16777216) + (ord($s[1])<<16) + (ord($s[2])<<8) + ord($s[3]); // 	16777216  = 1<<24
+	}
+
+	function pack_short($val) {
+		if ($val<0) { 
+			$val = abs($val);
+			$val = ~$val;
+			$val += 1;
+		}
+		return pack("n",$val); 
+	}
+
+	function splice($stream, $offset, $value) {
+		return substr($stream,0,$offset) . $value . substr($stream,$offset+strlen($value));
+	}
+
+	function _set_ushort($stream, $offset, $value) {
+		$up = pack("n", $value);
+		return $this->splice($stream, $offset, $up);
+	}
+
+	function _set_short($stream, $offset, $val) {
+		if ($val<0) { 
+			$val = abs($val);
+			$val = ~$val;
+			$val += 1;
+		}
+		$up = pack("n",$val); 
+		return $this->splice($stream, $offset, $up);
+	}
+
+	function get_chunk($pos, $length) {
+		fseek($this->fh,$pos);
+		if ($length <1) { return ''; }
+		return (fread($this->fh,$length));
+	}
+
+	function get_table($tag) {
+		list($pos, $length) = $this->get_table_pos($tag);
+		if ($length == 0) { return ''; }
+		fseek($this->fh,$pos);
+		return (fread($this->fh,$length));
+	}
+
+	function add($tag, $data) {
+		if ($tag == 'head') {
+			$data = $this->splice($data, 8, "\0\0\0\0");
+		}
+		$this->otables[$tag] = $data;
+	}
+
+
+
+/////////////////////////////////////////////////////////////////////////////////////////
+	function getCTG($file, $TTCfontID=0, $debug=false, $useOTL=false) {	// mPDF 5.7.1
+		// Only called if font is not to be used as embedded subset i.e. NOT called for SIP/SMP fonts
+		$this->useOTL = $useOTL;	// mPDF 5.7.1
+		$this->filename = $file;
+		$this->fh = fopen($file,'rb') or die('Can\'t open file ' . $file);
+		$this->_pos = 0;
+		$this->charWidths = '';
+		$this->glyphPos = array();
+		$this->charToGlyph = array();
+		$this->tables = array();
+		$this->numTTCFonts = 0;
+		$this->TTCFonts = array();
+		$this->skip(4);
+		if ($TTCfontID > 0) {
+			$this->version = $version = $this->read_ulong();	// TTC Header version now
+			if (!in_array($version, array(0x00010000,0x00020000)))
+				die("ERROR - Error parsing TrueType Collection: version=".$version." - " . $file);
+			$this->numTTCF

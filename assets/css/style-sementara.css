@@ -1,0 +1,22 @@
+.container{
+	position: relative;
+	width: 50%;
+	margin: auto 25%;
+	padding: 3%;
+	background-color: #1f4;
+}
+label{
+	margin: 5%;
+	margin-left: 20%;
+}
+input , textarea , select{
+	position: absolute;
+	right: 0;
+	margin-right: 10%;
+	padding: 1%;
+}
+input#foto{
+	margin-left: 20%;
+	margin-right: 1%;
+	position: relative;
+}
