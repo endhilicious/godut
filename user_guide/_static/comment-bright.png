@@ -1,0 +1,113 @@
+/////
+		// post - PostScript table
+		///////////////////////////////////
+		$this->seek_table("post");
+		if ($debug) { 
+			$ver_maj = $this->read_ushort();
+			$ver_min = $this->read_ushort();
+			if ($ver_maj <1 || $ver_maj >4) 
+				die('Unknown post table version '.$ver_maj);
+		}
+		else {
+			$this->skip(4); 
+		}
+		$this->italicAngle = $this->read_short() + $this->read_ushort() / 65536.0;
+		$this->underlinePosition = $this->read_short() * $scale;
+		$this->underlineThickness = $this->read_short() * $scale;
+		$isFixedPitch = $this->read_ulong();
+
+		$this->flags = 4;
+
+		if ($this->italicAngle!= 0) 
+			$this->flags = $this->flags | 64;
+		if ($usWeightClass >= 600)
+			$this->flags = $this->flags | 262144;
+		if ($isFixedPitch)
+			$this->flags = $this->flags | 1;
+
+		///////////////////////////////////
+		// hhea - Horizontal header table
+		///////////////////////////////////
+		$this->seek_table("hhea");
+		if ($debug) { 
+			$ver_maj = $this->read_ushort();
+			$ver_min = $this->read_ushort();
+			if ($ver_maj != 1)
+				die('Unknown hhea table version '.$ver_maj);
+			$this->skip(28);
+		}
+		else {
+			$this->skip(32); 
+		}
+		$metricDataFormat = $this->read_ushort();
+		if ($metricDataFormat != 0)
+			die('Unknown horizontal metric data format '.$metricDataFormat);
+		$numberOfHMetrics = $this->read_ushort();
+		if ($numberOfHMetrics == 0) 
+			die('Number of horizontal metrics is 0');
+
+		///////////////////////////////////
+		// maxp - Maximum profile table
+		///////////////////////////////////
+		$this->seek_table("maxp");
+		if ($debug) { 
+			$ver_maj = $this->read_ushort();
+			$ver_min = $this->read_ushort();
+			if ($ver_maj != 1)
+				die('Unknown maxp table version '.$ver_maj);
+		}
+		else {
+			$this->skip(4); 
+		}
+		$numGlyphs = $this->read_ushort();
+
+
+		///////////////////////////////////
+		// cmap - Character to glyph index mapping table
+		///////////////////////////////////
+		$cmap_offset = $this->seek_table("cmap");
+		$this->skip(2);
+		$cmapTableCount = $this->read_ushort();
+		$unicode_cmap_offset = 0;
+		for ($i=0;$i<$cmapTableCount;$i++) {
+			$platformID = $this->read_ushort();
+			$encodingID = $this->read_ushort();
+			$offset = $this->read_ulong();
+			$save_pos = $this->_pos;
+			if (($platformID == 3 && $encodingID == 1) || $platformID == 0) { // Microsoft, Unicode
+				$format = $this->get_ushort($cmap_offset + $offset);
+				if ($format == 4) {
+					if (!$unicode_cmap_offset) $unicode_cmap_offset = $cmap_offset + $offset;
+					if ($BMPonly) break;
+				}
+			}
+			// Microsoft, Unicode Format 12 table HKCS
+			else if ((($platformID == 3 && $encodingID == 10) || $platformID == 0) && !$BMPonly) {
+				$format = $this->get_ushort($cmap_offset + $offset);
+				if ($format == 12) {
+					$unicode_cmap_offset = $cmap_offset + $offset;
+					break;
+				}
+			}
+			$this->seek($save_pos );
+		}
+
+		if (!$unicode_cmap_offset)
+			die('Font ('.$this->filename .') does not have cmap for Unicode (platform 3, encoding 1, format 4, or platform 0, any encoding, format 4)');
+
+
+		$sipset = false;
+		$smpset = false;
+
+		// mPDF 5.7.1
+		$this->rtlPUAstr = '';
+		//$this->rtlPUAarr = array();
+		$this->GSUBScriptLang = array();
+		$this->GSUBFeatures = array();
+		$this->GSUBLookups = array();
+		$this->GPOSScriptLang = array();
+		$this->GPOSFeatures = array();
+		$this->GPOSLookups = array();
+		$this->glyphIDtoUni = '';
+
+		// Format 12 CMAP does characters above Unicode BMP i.e

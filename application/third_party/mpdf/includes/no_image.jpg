@@ -1,0 +1,182 @@
+pos]['hex'])!==false) { $checkpos++; }
+			// If outside scope of current syllable - return no match
+			if ($this->restrictToSyllable && isset($this->OTLdata[$checkpos]['syllable']) && $this->OTLdata[$checkpos]['syllable'] != $current_syllable) {
+				return false;
+			}
+			// If Input Class 0 specified, matches anything NOT in $class0excl 
+			else if (!$Input[$i] && isset($this->OTLdata[$checkpos]) && !isset($class0excl[$this->OTLdata[$checkpos]['uni']]) ) {
+					$matched[] = $checkpos;
+			}
+			else if (isset($this->OTLdata[$checkpos]) && isset($Input[$i][$this->OTLdata[$checkpos]['uni']])) {
+					$matched[] = $checkpos;
+			}
+			else { return false; }
+		}
+		
+		// LOOKAHEAD
+		for ($i=0;$i<count($Lookahead);$i++) {
+			$checkpos++;
+			while (isset($this->OTLdata[$checkpos]) && strpos($ignore, $this->OTLdata[$checkpos]['hex'])!==false) { $checkpos++; }
+			// If outside scope of current syllable - return no match
+			if ($this->restrictToSyllable && isset($this->OTLdata[$checkpos]['syllable']) && $this->OTLdata[$checkpos]['syllable'] != $current_syllable) {
+				return false;
+			}
+			// If Class 0 specified, matches anything NOT in $lclass0excl 
+			else if (!$Lookahead[$i] && isset($this->OTLdata[$checkpos]) && isset($lclass0excl[$this->OTLdata[$checkpos]['uni']]) ) {
+				return false;
+			}
+			else if (!isset($this->OTLdata[$checkpos]) || !isset($Lookahead[$i][$this->OTLdata[$checkpos]['uni']])) {
+				return false;
+			}
+		}
+		return $matched;
+	}
+
+
+
+
+
+	function _getClassDefinitionTable($offset) {
+		if (isset($this->LuDataCache[$this->fontkey][$offset])) {
+			$GlyphByClass = $this->LuDataCache[$this->fontkey][$offset];
+		}
+		else {
+			$this->seek($offset);
+			$ClassFormat = $this->read_ushort();
+			$GlyphClass = array();
+	//		$GlyphByClass = array(0=>array());	// NB This forces an index[0]
+			if ($ClassFormat == 1) {
+				$StartGlyph = $this->read_ushort();
+				$GlyphCount = $this->read_ushort();
+				for ($i=0;$i<$GlyphCount;$i++) {
+					$GlyphClass[$i]['startGlyphID'] = $StartGlyph + $i;
+					$GlyphClass[$i]['endGlyphID'] = $StartGlyph + $i;
+					$GlyphClass[$i]['class'] = $this->read_ushort();
+					for($g=$GlyphClass[$i]['startGlyphID'];$g<=$GlyphClass[$i]['endGlyphID'];$g++) {
+						$GlyphByClass[$GlyphClass[$i]['class']][] = $this->glyphToChar($g);
+					}
+				}
+			}
+			else if ($ClassFormat == 2) {
+				$tableCount = $this->read_ushort();
+				for ($i=0;$i<$tableCount;$i++) {
+					$GlyphClass[$i]['startGlyphID'] = $this->read_ushort();
+					$GlyphClass[$i]['endGlyphID'] = $this->read_ushort();
+					$GlyphClass[$i]['class'] = $this->read_ushort();
+					for($g=$GlyphClass[$i]['startGlyphID'];$g<=$GlyphClass[$i]['endGlyphID'];$g++) {
+						$GlyphByClass[$GlyphClass[$i]['class']][] = $this->glyphToChar($g);
+					}
+				}
+			}
+			ksort($GlyphByClass);
+			$this->LuDataCache[$this->fontkey][$offset] = $GlyphByClass;
+		}
+		return $GlyphByClass;
+	}
+
+	function count_bits($n) {     
+		for ($c=0; $n; $c++) {
+			$n &= $n - 1; // clear the least significant bit set
+		}
+		return $c;
+	}
+
+	function _getValueRecord($ValueFormat) {	// Common ValueRecord for GPOS
+		// Only returns 3 possible: $vra['XPlacement'] $vra['YPlacement'] $vra['XAdvance'] 
+		$vra = array();
+		// Horizontal adjustment for placement - in design units
+		if (($ValueFormat & 0x0001) == 0x0001) { $vra['XPlacement'] = $this->read_short(); }
+		// Vertical adjustment for placement - in design units
+		if (($ValueFormat & 0x0002) == 0x0002) { $vra['YPlacement'] = $this->read_short(); }
+		// Horizontal adjustment for advance - in design units (only used for horizontal writing)
+		if (($ValueFormat & 0x0004) == 0x0004) { $vra['XAdvance'] = $this->read_short(); }
+		// Vertical adjustment for advance - in design units (only used for vertical writing)
+		if (($ValueFormat & 0x0008) == 0x0008) { $this->read_short(); }
+		// Offset to Device table for horizontal placement-measured from beginning of PosTable (may be NULL)
+		if (($ValueFormat & 0x0010) == 0x0010) { $this->read_ushort(); }
+		// Offset to Device table for vertical placement-measured from beginning of PosTable (may be NULL)
+		if (($ValueFormat & 0x0020) == 0x0020) { $this->read_ushort(); }
+		// Offset to Device table for horizontal advance-measured from beginning of PosTable (may be NULL)
+		if (($ValueFormat & 0x0040) == 0x0040) { $this->read_ushort(); }
+		// Offset to Device table for vertical advance-measured from beginning of PosTable (may be NULL)
+		if (($ValueFormat & 0x0080) == 0x0080) { $this->read_ushort(); }
+		return $vra;
+	}
+
+	function _getAnchorTable($offset=0) {
+		if ($offset) { $this->seek($offset); }
+		$AnchorFormat = $this->read_ushort();
+		$XCoordinate = $this->read_short(); 
+		$YCoordinate = $this->read_short(); 
+		// Format 2 specifies additional link to contour point; Format 3 additional Device table
+		return array($XCoordinate, $YCoordinate);
+	}
+
+	function _getMarkRecord($offset, $MarkPos) {
+		$this->seek($offset);
+		$MarkCount = $this->read_ushort();
+		$this->skip($MarkPos*4);
+		$Class = $this->read_ushort(); 
+		$MarkAnchor = $offset + $this->read_ushort(); 	// = Offset to anchor table
+		list($x,$y) = $this->_getAnchorTable($MarkAnchor );
+		$MarkRecord = array('Class'=>$Class, 'AnchorX'=>$x, 'AnchorY'=>$y);
+		return $MarkRecord;
+	}
+
+	function _getGCOMignoreString($flag, $MarkFilteringSet) {
+		// If ignoreFlag set, combine all ignore glyphs into -> "(?:( 0FBA1| 0FBA2| 0FBA3)*)"
+		// else "()"
+		// for Input - set on secondary Lookup table if in Context, and set Backtrack and Lookahead on Context Lookup
+		$str = "";
+		$ignoreflag = 0;
+
+		// Flag & 0xFF?? = MarkAttachmentType
+		if ($flag & 0xFF00) {
+			// "a lookup must ignore any mark glyphs that are not in the specified mark attachment class"
+			// $this->MarkAttachmentType is already adjusted for this i.e. contains all Marks except those in the MarkAttachmentClassDef table
+			$MarkAttachmentType = $flag >> 8;
+			$ignoreflag = $flag; 
+			$str = $this->MarkAttachmentType[$MarkAttachmentType]; 
+		}
+
+		// Flag & 0x0010 = UseMarkFilteringSet
+		if ($flag & 0x0010) {
+			die("This font [".$this->fontkey."] contains MarkGlyphSets - Not tested yet"); 
+			// Change also in ttfontsuni.php
+			if ($MarkFilteringSet=='') die("This font [".$this->fontkey."] contains MarkGlyphSets - but MarkFilteringSet not set"); 
+			$str = $this->MarkGlyphSets[$MarkFilteringSet]; 
+		}
+
+		// If Ignore Marks set, supercedes any above
+		// Flag & 0x0008 = Ignore Marks - (unless already done with MarkAttachmentType)
+		if (($flag & 0x0008) == 0x0008 && ($flag & 0xFF00) == 0) { 
+			$ignoreflag = 8; 
+			$str = $this->GlyphClassMarks; 
+		}
+
+		// Flag & 0x0004 = Ignore Ligatures  
+		if (($flag & 0x0004) == 0x0004) {
+			$ignoreflag += 4; 
+			if ($str) { $str .= "|"; }
+			$str .= $this->GlyphClassLigatures; 
+		}
+		// Flag & 0x0002 = Ignore BaseGlyphs  
+		if (($flag & 0x0002) == 0x0002) {
+			$ignoreflag += 2; 
+			if ($str) { $str .= "|"; }
+			$str .= $this->GlyphClassBases; 
+		}
+		if ($str) { return "((?:(?:" . $str . "))*)"; }
+		else return "()";
+	}
+
+	function _checkGCOMignore($flag, $glyph, $MarkFilteringSet) {
+		$ignore = false;
+		// Flag & 0x0008 = Ignore Marks - (unless already done with MarkAttachmentType)
+		if (($flag & 0x0008 && ($flag & 0xFF00) == 0) && strpos($this->GlyphClassMarks,$glyph)) { $ignore = true; }
+		if (($flag & 0x0004) && strpos($this->GlyphClassLigatures,$glyph)) { $ignore = true; }
+		if (($flag & 0x0002) && strpos($this->GlyphClassBases,$glyph)) { $ignore = true; }
+		// Flag & 0xFF?? = MarkAttachmentType
+		if ($flag & 0xFF00) {
+			// "a lookup must ignore any mark glyphs that are not in the specified mark attachment class"
+			// $this->MarkAttachmentType is already adjusted for this i.e. contains all Marks except those in 

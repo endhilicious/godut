@@ -1,0 +1,31 @@
+Mostly-free OCR B
+ 
+This font is used in UPC bar code symbols, including the ISBN symbols on
+most published books.
+
+A freely distributable version seems to be sorely needed.  Until now, it's
+been very difficult to find the font in computer-usable format except by
+paying a high fee to a commercial font vendor.  Even many serious commercial
+publishers have so much trouble getting it right that they just go ahead and
+use Helvetica instead, or even (shudder) Arial.  Since the OCR B font is
+required by an international standard, it seems like it ought to be free. 
+So here it is.  The font in this package is not a "ripped", pirated, or
+shadily reverse engineered version; every effort has been made to ensure
+that it genuinely derives from free sources and all the creators involved
+have actually intended it for free public use.
+
+Converted by Matthew Skala from Metafont format to Postscript and TrueType
+formats, July 28, 2006, using mftrace 1.2.4 by Paul Vojta, which is
+available from
+   http://www.xs4all.nl/~hanwen/mftrace/
+and Autotrace 0.31.1 available from
+   http://autotrace.sourceforge.net/
+
+The Metafont files (not included - see notes below) were coded by Norbert
+Schwarz in the 1980s, based on German standards documents.  He has attached
+a notice, notably not actually claiming any copyright - see the file
+"ocrbinfo" - saying that the fonts are "given to free non commercial use",
+but commenting that he is only free to grant rights to his own work on the
+digitization, because he did not design the original letter forms.  He
+suggests that there may be other copyright claims attached to the letter
+forms themselves, which Schwarz credits as being originally designed by
